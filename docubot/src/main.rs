@@ -19,6 +19,7 @@ const BANNER: &str = r"
 (    \ /  \  / __)/ )( \(  _ \ /  \(_  _)
  ) D ((  O )( (__ ) \/ ( ) _ ((  O ) )(
 (____/ \__/  \___)\____/(____/ \__/ (__)
+          **Kilroy Was Here**
 ";
 
 fn main() {
@@ -40,18 +41,7 @@ fn main() {
     }
     println!("Generating embeddings complete");
 
-    println!("Entering main engine loop");
+    engine.search("Hello World");
 
     // Break this into a function with server
-
-    loop {
-        println!("Enter a query:");
-        let mut query = String::new();
-        std::io::stdin().read_line(&mut query).unwrap();
-        let results = engine.search(&query);
-        println!("Results:");
-        for result in results {
-            println!("{}", result);
-        }
-    }
 }

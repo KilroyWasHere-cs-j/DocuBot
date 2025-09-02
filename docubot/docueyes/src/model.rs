@@ -54,11 +54,11 @@ impl Model {
     pub fn generate_embeddings(&self, embedding_input: EmbeddingInput) -> Result<Vec<Embeddings>> {
         match embedding_input {
             EmbeddingInput::Corpus(corpus) => {
-                let mut embeddings = Vec::new();
+                let mut page_embeddings = Vec::new();
                 for page in &corpus.pages {
-                    embeddings.push(self.model.encode(&[&page.body])?);
+                    page_embeddings.push(self.model.encode(&[&page.body])?);
                 }
-                Ok(embeddings)
+                Ok(page_embeddings)
             }
             EmbeddingInput::Text(text) => Ok(vec![self.model.encode(&[text])?]),
         }

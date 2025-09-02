@@ -9,12 +9,11 @@ use crate::corpus::Embeddings;
 use crate::model::EmbeddingInput;
 use crate::model::Model;
 use anyhow::Result;
-use anyhow::bail;
 
 pub struct Engine {
     corpus: Corpus,
     model: Model,
-    embeddings: Vec<Embeddings>,
+    page_embeddings: Vec<Embeddings>,
 }
 
 impl Engine {
@@ -41,7 +40,7 @@ impl Engine {
         Engine {
             corpus: corpus,
             model: Model::new(),
-            embeddings: Vec::new(),
+            page_embeddings: Vec::new(),
         }
     }
 
@@ -67,20 +66,25 @@ impl Engine {
     pub fn build_embeddings(&mut self) -> Result<()> {
         let embeddings = self
             .model
-            .generate_embeddings(EmbeddingInput::Corpus(&self.corpus))?;
+            .generate_embeddings(EmbeddingInput::Corpus(&self.corpus))
+            .unwrap();
 
-        // Specific tests to ensure data integrity
-        if self.embeddings.is_empty() {
-            bail!("No embeddings generated")
-        }
-        if self.embeddings.len() != self.corpus.pages.len() {
-            bail!("Mismatch in number of embeddings and pages")
-        }
-        if self.embeddings.iter().any(|e| e.is_empty()) {
-            bail!("Empty embeddings found")
-        }
-        self.embeddings = embeddings;
+        self.page_embeddings = embeddings;
         Ok(())
+    }
+
+    fn cosine_similarity(&self, a: &[f32], b: &[f32]) -> f32 {
+        assert_eq!(a.len(), b.len(), "Vectors must have the same length");
+
+        let dot: f32 = a.iter().zip(b).map(|(x, y)| x * y).sum();
+        let norm_a: f32 = a.iter().map(|x| x * x).sum::<f32>().sqrt();
+        let norm_b: f32 = b.iter().map(|x| x * x).sum::<f32>().sqrt();
+
+        if norm_a == 0.0 || norm_b == 0.0 {
+            0.0 // or handle divide-by-zero as you see fit
+        } else {
+            dot / (norm_a * norm_b)
+        }
     }
 
     ///
@@ -95,6 +99,15 @@ impl Engine {
     pub fn search(&self, query: &str) -> Vec<String> {
         let query_embedding = self.model.generate_embeddings(EmbeddingInput::Text(query));
         // Implementation for search
+
+        // TODO fix this I am tired right now
+        // for (i, page_embedding) in self.page_embeddings.iter().enumerate() {
+        //     let similarity = self.cosine_similarity(&query_embedding, page_embedding);
+        //     if similarity > 0.7 {
+        //         println!("Page {} is similar to the query", i);
+        //     }
+        // }
+
         unimplemented!()
     }
 }

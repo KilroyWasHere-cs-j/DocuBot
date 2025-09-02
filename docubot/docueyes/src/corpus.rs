@@ -1,5 +1,7 @@
 /*
+ *
  * Corpus is a file that holds structures and helper function pretaining to the corpus
+ *
  */
 
 use anyhow::Result;
@@ -33,20 +35,20 @@ pub struct Page {
 }
 
 ///
-/// Load the Codex from a JSON file.
+/// Generate a Corpus from a JSON file.
 ///
 /// # Returns
 /// A Result containing a new instance of the Codex struct.
 ///
 pub fn load_corpus(path: &str) -> Result<Corpus> {
     let json = fs::read_to_string(path)?;
-    let codex: Corpus = serde_json::from_str(&json)?;
-    if codex.pages.is_empty() {
-        return Err(anyhow::anyhow!("No pages found in the codex"));
+    let corpus: Corpus = serde_json::from_str(&json)?;
+    if corpus.pages.is_empty() {
+        return Err(anyhow::anyhow!("No pages found in the corpus"));
     }
-    println!("Loaded codex pages...");
-    for page in &codex.pages {
+    println!("Loaded corpus pages...");
+    for page in &corpus.pages {
         println!("Page: {}", page.name);
     }
-    Ok(codex)
+    Ok(corpus)
 }
