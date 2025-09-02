@@ -1,5 +1,7 @@
 /*
+ *
  * Model is a simplist interface for the creation and management of the embedding models.
+ *
  */
 
 use crate::corpus::Corpus;
@@ -9,6 +11,14 @@ use rust_bert::pipelines::sentence_embeddings::SentenceEmbeddingsModel;
 use rust_bert::pipelines::sentence_embeddings::{
     SentenceEmbeddingsBuilder, SentenceEmbeddingsModelType,
 };
+
+///
+/// This provides a nice way to work with one off or corpus embeddings input.
+///
+pub enum EmbeddingInput<'a> {
+    Corpus(&'a Corpus),
+    Text(&'a str),
+}
 
 ///
 /// This is a nice wrapper around the SentenceEmbeddingsModel from rust_bert.
@@ -41,12 +51,16 @@ impl Model {
     /// # Returns
     /// A Result containing a vector of vectors of f32 representing the embeddings for each sentence.
     ///
-    pub fn generate_embeddings(&self, corpus: &Corpus) -> Result<Vec<Embeddings>> {
-        let mut embeddings = Vec::new();
-        for page in &corpus.pages {
-            // embeddings.push(self.model.encode(&[body])?);
-            embeddings.push(self.model.encode(&[page.body.clone()])?);
+    pub fn generate_embeddings(&self, embedding_input: EmbeddingInput) -> Result<Vec<Embeddings>> {
+        match embedding_input {
+            EmbeddingInput::Corpus(corpus) => {
+                let mut embeddings = Vec::new();
+                for page in &corpus.pages {
+                    embeddings.push(self.model.encode(&[&page.body])?);
+                }
+                Ok(embeddings)
+            }
+            EmbeddingInput::Text(text) => Ok(vec![self.model.encode(&[text])?]),
         }
-        Ok(embeddings)
     }
 }

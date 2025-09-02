@@ -1,10 +1,15 @@
 /*
+ *
  * Engine handles model management, search, and corpus management.
+ *
  */
 
 use crate::corpus::Corpus;
 use crate::corpus::Embeddings;
+use crate::model::EmbeddingInput;
 use crate::model::Model;
+use anyhow::Result;
+use anyhow::bail;
 
 pub struct Engine {
     corpus: Corpus,
@@ -50,7 +55,7 @@ impl Engine {
     /// * `Vec<Embeddings>` - The generated embeddings.
     ///
     /// # Errors
-    /// * `Error` - If there is an error generating embeddings.
+    /// * `Error` - All errors are handled internally.
     ///
     /// # Examples
     /// ```
@@ -59,24 +64,23 @@ impl Engine {
     /// engine.build_embedding();
     /// ```
     ///
-    pub fn build_embedding(&mut self) {
-        println!("Generating embeddings");
-        match self.model.generate_embeddings(&self.corpus) {
-            Ok(embeddings) => self.embeddings = embeddings,
-            Err(err) => eprintln!("Error generating embeddings: {}", err),
-        }
+    pub fn build_embeddings(&mut self) -> Result<()> {
+        let embeddings = self
+            .model
+            .generate_embeddings(EmbeddingInput::Corpus(&self.corpus))?;
 
         // Specific tests to ensure data integrity
         if self.embeddings.is_empty() {
-            eprintln!("No embeddings generated");
+            bail!("No embeddings generated")
         }
         if self.embeddings.len() != self.corpus.pages.len() {
-            eprintln!("Mismatch in number of embeddings and pages");
+            bail!("Mismatch in number of embeddings and pages")
         }
         if self.embeddings.iter().any(|e| e.is_empty()) {
-            eprintln!("Empty embeddings found");
+            bail!("Empty embeddings found")
         }
-        println!("Generating embeddings complete");
+        self.embeddings = embeddings;
+        Ok(())
     }
 
     ///
@@ -89,7 +93,7 @@ impl Engine {
     /// * `Vec<String>` - The pages similar to the query.
     ///
     pub fn search(&self, query: &str) -> Vec<String> {
-        // let query_embedding = self.model.generate_embeddings()
+        let query_embedding = self.model.generate_embeddings(EmbeddingInput::Text(query));
         // Implementation for search
         unimplemented!()
     }
