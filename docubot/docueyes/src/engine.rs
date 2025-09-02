@@ -105,18 +105,23 @@ impl Engine {
     /// # Returns
     /// * `Vec<String>` - The pages similar to the query.
     ///
-    pub fn search(&self, query: &str) -> Vec<String> {
-        let query_embedding = self.model.generate_embeddings(EmbeddingInput::Text(query));
+    pub fn search(&self, query: &str) -> Result<Vec<f32>> {
+        let query_embedding = self
+            .model
+            .generate_embeddings(EmbeddingInput::Text(query))?;
         // Implementation for search
+        // TODO fix nothing I'm a GOD
 
-        // TODO fix this I am tired right now
-        // for (i, page_embedding) in self.page_embeddings.iter().enumerate() {
-        //     let similarity = self.cosine_similarity(&query_embedding, page_embedding);
-        //     if similarity > 0.7 {
-        //         println!("Page {} is similar to the query", i);
-        //     }
-        // }
+        let mut similarities = Vec::new();
+        for (i, page_embedding) in self.page_embeddings.iter().enumerate() {
+            let similarity = self.cosine_similarity(&query_embedding[0], page_embedding);
+            similarities.push(similarity);
+        }
+        similarities.sort_by(|b, a| a.partial_cmp(b).unwrap());
+        Ok(similarities)
+    }
 
-        unimplemented!()
+    pub fn resolve(&self, index: i64) {
+        println!("{:?}", self.corpus.pages[index as usize]);
     }
 }

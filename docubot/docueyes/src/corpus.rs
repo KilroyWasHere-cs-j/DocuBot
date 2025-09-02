@@ -9,7 +9,7 @@ use serde::Deserialize;
 use std::fs;
 
 // Custom type for embeddings instead of an ungly Vec<Vec<f32>>
-pub type Embeddings = Vec<Vec<f32>>;
+pub type Embeddings = Vec<f32>;
 
 ///
 /// Create a new instance of the Codex struct.

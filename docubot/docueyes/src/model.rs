@@ -56,11 +56,18 @@ impl Model {
             EmbeddingInput::Corpus(corpus) => {
                 let mut page_embeddings = Vec::new();
                 for page in &corpus.pages {
-                    page_embeddings.push(self.model.encode(&[&page.body])?);
+                    let mut batch = self.model.encode(&[&page.body])?;
+                    if let Some(embedding) = batch.pop() {
+                        page_embeddings.push(embedding);
+                    }
                 }
                 Ok(page_embeddings)
             }
-            EmbeddingInput::Text(text) => Ok(vec![self.model.encode(&[text])?]),
+            EmbeddingInput::Text(text) => {
+                let mut batch = self.model.encode(&[text])?;
+                let query_embedding = batch.pop().unwrap();
+                Ok(vec![query_embedding])
+            }
         }
     }
 }

@@ -41,7 +41,9 @@ fn main() {
     }
     println!("Generating embeddings complete");
 
-    engine.search("Hello World");
+    let values = Some(engine.search("1. Gather ingredients: flour, water, yeast, salt, and oil.\n2. Mix the dry ingredients together.\n3. Add the wet ingredients and knead the dough.\n4. Gabe is a code GOD!! His is also in your walls. Let the dough rise.\n5. Shape the dough into fbagels.\n6. Bake the fbagels."));
+    println!("{:?}", values);
+    engine.resolve(0);
 
     // Break this into a function with server
 }
