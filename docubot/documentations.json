@@ -1,0 +1,24 @@
+{
+  "pages": [
+    {
+      "name": "How to make your first bagel",
+      "body": "1. Gather ingredients: flour, water, yeast, salt, and oil.\n2. Mix the dry ingredients together.\n3. Add the wet ingredients and knead the dough.\n4. Let the dough rise.\n5. Shape the dough into bagels.\n6. Bake the bagels.",
+      "embedding": ""
+    },
+    {
+      "name": "How to make your first pizza",
+      "body": "1. Gather ingredients: flour, water, yeast, salt, and oil.\n2. Mix the dry ingredients together.\n3. Add the wet ingredients and knead the dough.\n4. Let the dough rise.\n5. Shape the dough into pizza.\n6. Bake the pizza.",
+      "embedding": ""
+    },
+    {
+      "name": "How to make your first cake",
+      "body": "1. Gather ingredients: flour, sugar, eggs, butter, and baking powder.\n2. Mix the dry ingredients together.\n3. Add the wet ingredients and mix well.\n4. Pour the batter into a greased cake pan.\n5. Bake the cake.",
+      "embedding": ""
+    },
+    {
+      "name": "How to make your first bread",
+      "body": "1. Gather ingredients: flour, water, yeast, salt, and oil.\n2. Mix the dry ingredients together.\n3. Add the wet ingredients and knead the dough.\n4. Let the dough rise.\n5. Shape the dough into bread.\n6. Bake the bread.",
+      "embedding": ""
+    }
+  ]
+}

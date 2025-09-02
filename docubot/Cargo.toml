@@ -4,4 +4,7 @@ version = "0.1.0"
 edition = "2024"
 
 [dependencies]
-finalfusion = "0.18.0"
+docueyes = { path = "./docueyes" }
+indicatif = "0.16"
+console = { version = "0.16", features = ["std"] }
+typenum = "1.18.0"
