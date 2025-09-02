@@ -73,6 +73,15 @@ impl Engine {
         Ok(())
     }
 
+    /// Calculate the cosine similarity between two `f32` vectors.
+    ///
+    /// # Arguments
+    /// * `a` - The first vector.
+    /// * `b` - The second vector.
+    ///
+    /// # Returns
+    /// * `f32` - The cosine similarity between the two vectors.
+    ///
     fn cosine_similarity(&self, a: &[f32], b: &[f32]) -> f32 {
         assert_eq!(a.len(), b.len(), "Vectors must have the same length");
 
