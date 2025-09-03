@@ -11,13 +11,11 @@
  *
  */
 
-mod api;
-
-use actix_web::{App, HttpResponse, HttpServer, Responder, get, post, web};
 use anyhow::Result;
-use api::endpoints::{echo, hello, manual_hello};
 use docueyes::corpus::load_corpus;
+use docueyes::engine::Engine;
 use std::env;
+use std::fs;
 
 const BANNER: &str = r"
  ____   __    ___  _  _  ____   __  ____
@@ -27,49 +25,67 @@ const BANNER: &str = r"
           **Kilroy Was Here**
 ";
 
-/// Program specific constants
-const TEMPERATURE: f32 = 0.7;
-const FAIL_THRESHOLD: f32 = 0.1;
+const TEMPERATURE: f32 = 0.5;
+const MAX_RESULTS: usize = 3;
 
-// #[actix_web::main]
 fn main() -> Result<()> {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
-        println!("Usage: docubot <corpus_file>");
+        println!("Usage:");
+        println!("docubot <corpus_file> --recompile");
         return Ok(());
     }
 
     print!("{}\n", BANNER);
-    println!("Starting...");
+    println!("----------------------Starting----------------------");
 
     let corpus = load_corpus(args.get(1).unwrap())?;
-    let mut engine = docueyes::engine::Engine::new(corpus);
+    let mut engine = Engine::new(corpus);
 
-    println!("Generating embeddings");
-    if let Err(e) = engine.build_embeddings() {
-        eprintln!("Embedding build failed: {}", e);
+    println!("\nPreparing embeddings");
+
+    // Based on the existance and CLI arguments handle loading and compilation of embeddings
+    if args.get(2) == Some(&String::from("--recompile")) {
+        engine.build_embeddings()?;
+        println!("Embeddings recompiling triggered");
+        println!("Embeddings recompiled successfully");
+        println!("Caching generated embeddings");
+        engine.cache_embeddings("embeddings.txt")?;
+        println!("Embeddings cached successfully");
+    } else {
+        match fs::exists("embeddings.txt") {
+            Ok(true) => {
+                println!("Loading embeddings from found file");
+                engine.load_embeddings("embeddings.txt")?;
+                println!("Embeddings loaded successfully");
+            }
+            Ok(false) => {
+                println!("Embeddings not found, compiling embeddings");
+                engine.build_embeddings()?;
+                println!("Embeddings compiled successfully");
+                println!("Caching generated embeddings");
+                engine.cache_embeddings("embeddings.txt")?;
+                println!("Embeddings cached successfully");
+            }
+            Err(e) => return Err(e.into()),
+        }
     }
-    println!("Generation of embeddings is complete");
 
-    // let search_return = engine.search("I like planes give me some ideas on fun things to do")?;
+    println!("\n----------------------Entering main controller----------------------\n");
 
-    // println!("{:?}", search_return);
+    let search_return = engine.search("How does Salesforce operate on the internet")?;
 
-    // // Resolve needs to be massively improved
-    // println!(
-    //     "{:?}",
-    //     engine.resolve(docueyes::engine::ResolveLevel::First, search_return)
-    // );
-
-    // let _ = HttpServer::new(|| {
-    //     App::new()
-    //         .service(hello)
-    //         .service(echo)
-    //         .route("/hey", web::get().to(manual_hello))
-    // })
-    // .bind(("127.0.0.1", 8080))?
-    // .run()
-    // .await;
+    // Resolve needs to be massively improved
+    let resolved_pages = engine.resolve(search_return, TEMPERATURE, MAX_RESULTS);
+    if resolved_pages.is_empty() {
+        println!("No results found");
+    } else {
+        for page in resolved_pages {
+            println!("{}", page.name);
+            println!("{}", page.body);
+            println!("{}", page.link);
+        }
+    }
 
     Ok(())
 }

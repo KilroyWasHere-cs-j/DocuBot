@@ -10,6 +10,7 @@ use crate::corpus::Page;
 use crate::model::EmbeddingInput;
 use crate::model::Model;
 use anyhow::Result;
+use std::fs::File;
 
 ///
 /// ResolveLevel enum defines the level/degree of resolution for similarity calculations.
@@ -98,6 +99,47 @@ impl Engine {
         Ok(())
     }
 
+    ///
+    /// Writes text embeddings to a file.
+    ///
+    /// # Arguments
+    /// * `path` - The path to the file.
+    ///
+    /// # Returns
+    /// * `Result<()>` - The result of the operation.
+    ///
+    pub fn cache_embeddings(&mut self, path: &str) -> Result<()> {
+        let mut file = File::create(path)?;
+        serde_json::to_writer(&mut file, &self.page_embeddings)?;
+        Ok(())
+    }
+
+    ///
+    /// Reads text embeddings from a file.
+    ///
+    /// # Arguments
+    /// * `path` - The path to the file.
+    ///
+    /// # Returns
+    /// * `Result<()>` - The result of the operation.
+    ///
+    pub fn load_embeddings(&mut self, path: &str) -> Result<()> {
+        let mut file = File::open(path)?;
+        self.page_embeddings = serde_json::from_reader(&mut file)?;
+        Ok(())
+    }
+
+    ///
+    /// Helper function to clears engines stored text embeddings.
+    ///
+    /// # Returns
+    /// * `Result<()>` - The result of the operation.
+    ///
+    pub fn clear_embeddings(&mut self) -> Result<()> {
+        self.page_embeddings.clear();
+        Ok(())
+    }
+
     /// Calculate the cosine similarity between two `f32` vectors.
     ///
     /// # Arguments
@@ -156,9 +198,21 @@ impl Engine {
     /// # Returns
     /// * `Option<f32>` - The resolved similarity value.
     ///
-    pub fn resolve(&self, resolve_level: ResolveLevel, set: Vec<f32>) -> &Page {
-        let position = self.calculate_position(resolve_level, set);
-        self.corpus.pages.get(position.unwrap() as usize).unwrap()
+    pub fn resolve(&self, set: Vec<f32>, temperature: f32, window_size: usize) -> Vec<&Page> {
+        let mut resolved_page = Vec::new();
+        let mut index = 0;
+
+        // add in a check for all dissimilariters
+        for similarity in set {
+            if similarity >= temperature {
+                resolved_page.push(self.corpus.pages.get(index).unwrap());
+            }
+            if index >= window_size {
+                break;
+            }
+            index += 1;
+        }
+        resolved_page
     }
 
     ///

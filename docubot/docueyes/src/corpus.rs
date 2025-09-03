@@ -32,6 +32,7 @@ pub struct Corpus {
 pub struct Page {
     pub name: String,
     pub body: String,
+    pub link: String,
 }
 
 ///
@@ -46,9 +47,6 @@ pub fn load_corpus(path: &str) -> Result<Corpus> {
     let corpus: Corpus = serde_json::from_str(&json)?;
     if corpus.pages.is_empty() {
         return Err(anyhow::anyhow!("No pages found in the corpus"));
-    }
-    for page in &corpus.pages {
-        println!("Page: {}", page.name);
     }
     println!("Corpus loaded");
     Ok(corpus)
