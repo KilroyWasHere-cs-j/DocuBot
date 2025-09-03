@@ -41,14 +41,15 @@ pub struct Page {
 /// A Result containing a new instance of the Codex struct.
 ///
 pub fn load_corpus(path: &str) -> Result<Corpus> {
+    println!("Loaded corpus pages... from {}", path);
     let json = fs::read_to_string(path)?;
     let corpus: Corpus = serde_json::from_str(&json)?;
     if corpus.pages.is_empty() {
         return Err(anyhow::anyhow!("No pages found in the corpus"));
     }
-    println!("Loaded corpus pages...");
     for page in &corpus.pages {
         println!("Page: {}", page.name);
     }
+    println!("Corpus loaded");
     Ok(corpus)
 }

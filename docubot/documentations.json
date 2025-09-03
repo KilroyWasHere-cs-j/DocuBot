@@ -1,20 +1,24 @@
 {
   "pages": [
     {
-      "name": "How to make your first bagel",
-      "body": "1. Gather ingredients: flour, water, yeast, salt, and oil.\n2. Mix the dry ingredients together.\n3. Add the wet ingredients and knead the dough.\n4. Let the dough rise.\n5. Shape the dough into bagels.\n6. Bake the bagels."
+      "name": "How to make your first smoothie",
+      "body": "1. Gather ingredients: fruit, yogurt, milk or juice, and ice.\n2. Wash and chop the fruit.\n3. Add all ingredients into a blender.\n4. Blend until smooth.\n5. Taste and adjust sweetness with honey if needed.\n6. Pour into a glass and enjoy."
     },
     {
-      "name": "How to make your first pizza",
-      "body": "1. Gather ingredients: flour, water, yeast, salt, and oil.\n2. Mix the dry ingredients together.\n3. Add the wet ingredients and knead the dough.\n4. Let the dough rise.\n5. Shape the dough into pizza.\n6. Bake the pizza."
+      "name": "How to make your first milkshake",
+      "body": "1. Gather ingredients: ice cream, milk, and flavoring (like chocolate syrup).\n2. Scoop ice cream into a blender.\n3. Add milk and syrup.\n4. Blend until creamy.\n5. Pour into a tall glass.\n6. Top with whipped cream if desired."
     },
     {
-      "name": "How to make your first cake",
-      "body": "1. Gather ingredients: flour, sugar, eggs, butter, and baking powder.\n2. Mix the dry ingredients together.\n3. Add the wet ingredients and mix well.\n4. Pour the batter into a greased cake pan.\n5. Bake the cake."
+      "name": "How to make your first salad",
+      "body": "1. Gather ingredients: lettuce, tomato, cucumber, and dressing.\n2. Wash and chop the vegetables.\n3. Place vegetables in a bowl.\n4. Add optional toppings like cheese or nuts.\n5. Pour dressing over the salad.\n6. Toss gently and serve."
     },
     {
-      "name": "How to make your first bread",
-      "body": "1. Gather ingredients: flour, water, yeast, salt, and oil.\n2. Mix the dry ingredients together.\n3. Add the wet ingredients and knead the dough.\n4. Let the dough rise.\n5. Shape the dough into bread.\n6. Bake the bread."
+      "name": "How to build a paper airplane",
+      "body": "1. Start with a standard sheet of paper.\n2. Fold it in half lengthwise, then unfold.\n3. Fold the top corners down to meet the center line.\n4. Fold the edges again to form the nose.\n5. Fold the paper in half along the first crease.\n6. Fold the wings down and test fly."
+    },
+    {
+      "name": "How to set up your first tent",
+      "body": "1. Choose a flat campsite and clear debris.\n2. Lay out the tent and position it.\n3. Assemble the tent poles.\n4. Insert poles into the fabric sleeves or clips.\n5. Raise the tent and secure it with stakes.\n6. Add the rainfly and tighten the guy lines."
     }
   ]
 }

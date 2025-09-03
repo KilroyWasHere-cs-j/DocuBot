@@ -6,10 +6,35 @@
 
 use crate::corpus::Corpus;
 use crate::corpus::Embeddings;
+use crate::corpus::Page;
 use crate::model::EmbeddingInput;
 use crate::model::Model;
 use anyhow::Result;
 
+///
+/// ResolveLevel enum defines the level/degree of resolution for similarity calculations.
+///
+/// # Variants
+/// * `First` - First element
+/// * `Mid` - Middle element
+/// * `Last` - Last element
+/// * `To` - For first element advance towards last element `n` steps
+///
+pub enum ResolveLevel {
+    First,
+    Mid,
+    Last,
+    To,
+}
+
+///
+/// Engine struct represents the engine that handles model management, search, and corpus management.
+///
+/// # Fields
+/// * `corpus` - The corpus to generate embeddings from
+/// * `model` - The model used in the embedding process
+/// * `page_embeddings` - The generated embeddings
+///
 pub struct Engine {
     corpus: Corpus,
     model: Model,
@@ -117,11 +142,41 @@ impl Engine {
             let similarity = self.cosine_similarity(&query_embedding[0], page_embedding);
             similarities.push(similarity);
         }
-        similarities.sort_by(|b, a| a.partial_cmp(b).unwrap());
+        // similarities.sort_by(|b, a| a.partial_cmp(b).unwrap());
         Ok(similarities)
     }
 
-    pub fn resolve(&self, index: i64) {
-        println!("{:?}", self.corpus.pages[index as usize]);
+    ///
+    /// Resolve the similarity set to a single value based on the resolve level.
+    ///
+    /// # Arguments
+    /// * `resolve_level` - The level of resolution.
+    /// * `set` - The similarity set.
+    ///
+    /// # Returns
+    /// * `Option<f32>` - The resolved similarity value.
+    ///
+    pub fn resolve(&self, resolve_level: ResolveLevel, set: Vec<f32>) -> &Page {
+        let position = self.calculate_position(resolve_level, set);
+        self.corpus.pages.get(position.unwrap() as usize).unwrap()
+    }
+
+    ///
+    /// Given a set of similarities and resolve level convert similaritys to corpus value
+    ///
+    /// # Arguments
+    /// * `resolve_level` - The level of resolution. See `ResolveLevel` enum for more details.
+    /// * `set` - The similarity set.
+    ///
+    /// # Returns
+    /// * `Option<f32>` - The position of the similarity set.
+    ///
+    fn calculate_position(&self, resolve_level: ResolveLevel, set: Vec<f32>) -> Option<f32> {
+        match resolve_level {
+            ResolveLevel::Last => set.last().copied(), // Get last element
+            ResolveLevel::Mid => set.get(set.len() / 2).copied(), // Get middle element
+            ResolveLevel::First => set.first().copied(), // Get first element
+            ResolveLevel::To => set.get(4).copied(),   // Place holder for more advanced logic
+        }
     }
 }

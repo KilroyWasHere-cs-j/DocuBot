@@ -8,3 +8,6 @@ docueyes = { path = "./docueyes" }
 indicatif = "0.16"
 console = { version = "0.16", features = ["std"] }
 typenum = "1.18.0"
+anyhow = "1.0.99"
+tokio = "1.47.1"
+actix-web = "4.11.0"
