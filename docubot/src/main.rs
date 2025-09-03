@@ -22,7 +22,7 @@ const BANNER: &str = r"
 (    \ /  \  / __)/ )( \(  _ \ /  \(_  _)
  ) D ((  O )( (__ ) \/ ( ) _ ((  O ) )(
 (____/ \__/  \___)\____/(____/ \__/ (__)
-          **Kilroy Was Here**
+          **<<Kilroy Was Here>>**
 ";
 
 const TEMPERATURE: f32 = 0.5;
