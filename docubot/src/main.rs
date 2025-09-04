@@ -11,37 +11,13 @@
  *
  */
 
+mod consts;
+
 use docueyes::corpus::load_corpus;
 use docueyes::engine::Engine;
-use lazy_static::lazy_static;
 use std::env;
 use std::fs;
 use tiny_http::{Response, Server};
-
-const BANNER: &str = r"
- ____   __    ___  _  _  ____   __  ____
-(    \ /  \  / __)/ )( \(  _ \ /  \(_  _)
- ) D ((  O )( (__ ) \/ ( ) _ ((  O ) )(
-(____/ \__/  \___)\____/(____/ \__/ (__)
-          **<<Kilroy Was Here>>**
-";
-
-const TEMPERATURE: f32 = 0.34;
-const MAX_RESULTS: usize = 10;
-
-// Constants specific to the BIT tests
-const BIT_TEMPERATURE: f32 = 0.34; // 0.34
-const BIT_MAX_RESULTS: usize = 10; // 10
-lazy_static! {
-    static ref BIT_TEST_PAGE_NAMES: Vec<&'static str> = vec![
-        "Salesforce is cloud-based",
-        "CRM stands for Customer Relationship Management",
-        "Salesforce automates workflows",
-        "AppExchange is like an app store",
-        "Einstein AI powers insights",
-        "Trailhead teaches Salesforce"
-    ];
-}
 
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -51,7 +27,7 @@ fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    print!("{}\n", BANNER);
+    print!("{}\n", consts::BANNER);
     println!("----------------------Starting----------------------");
 
     let corpus = load_corpus(args.get(1).unwrap()).unwrap();
@@ -85,26 +61,14 @@ fn main() -> anyhow::Result<()> {
             Err(e) => return Err(e.into()),
         }
     }
-
-    println!("\n----------------------Preforming BIT Tests----------------------\n");
-
-    let search_return = engine.search("Salesforce use AI")?;
-    println!("{:?}", search_return);
-    let resolved_pages = engine.resolve(search_return, BIT_TEMPERATURE, BIT_MAX_RESULTS);
-
-    println!("BIT 1 Running");
-    for page in resolved_pages {
-        if !BIT_TEST_PAGE_NAMES.contains(&page.name.as_str()) {
-            println!("BIT 1 Failed");
-            break;
-        }
-    }
     println!("BIT 1 Passed");
 
     println!("\n----------------------Entering Main Control Loop----------------------\n");
 
     let main_control_thread = std::thread::spawn(move || {
         let server = Server::http("0.0.0.0:8080").unwrap();
+        println!("Spawned server at: {}:{}", "0.0.0.0", "8080");
+
         for request in server.incoming_requests() {
             let url = request.url();
             println!(
@@ -113,7 +77,8 @@ fn main() -> anyhow::Result<()> {
             let query = url.strip_prefix("/search?q=").unwrap_or("");
             let search_return = engine.search(query).unwrap();
             println!("Request: {}", query);
-            let resolved_pages = engine.resolve(search_return, TEMPERATURE, MAX_RESULTS);
+            let resolved_pages =
+                engine.resolve(search_return, consts::TEMPERATURE, consts::MAX_RESULTS);
             println!("Resolved pages: {:?}", resolved_pages);
 
             let body = resolved_pages

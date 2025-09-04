@@ -2,4 +2,26 @@
  *
  * Collection of Built-In-Tests used for validating the functionality of DocuBot.
  *
+ * TODO: Implement tests...
+ *
  */
+
+use crate::consts::{BIT_MAX_RESULTS, BIT_TEMPERATURE, BIT_TEST_PAGE_NAMES};
+use anyhow::Result;
+use anyhow::bail;
+use docueyes::engine::Engine;
+
+pub fn run(engine: Engine) -> Result<()> {
+    println!("\n----------------------Preforming BIT Tests----------------------\n");
+    let search_return = engine.search("Salesforce use AI")?;
+    println!("{:?}", search_return);
+    let resolved_pages = engine.resolve(search_return, BIT_TEMPERATURE, BIT_MAX_RESULTS);
+
+    println!("BIT 1 Running");
+    for page in resolved_pages {
+        if !BIT_TEST_PAGE_NAMES.contains(&page.name.as_str()) {
+            bail!("BIT 1 Failed")
+        }
+    }
+    Ok(())
+}
