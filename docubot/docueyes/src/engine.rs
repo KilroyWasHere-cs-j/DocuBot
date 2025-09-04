@@ -11,6 +11,7 @@ use crate::model::EmbeddingInput;
 use crate::model::Model;
 use anyhow::Result;
 use std::fs::File;
+use std::thread::available_parallelism;
 
 ///
 /// ResolveLevel enum defines the level/degree of resolution for similarity calculations.
@@ -202,7 +203,12 @@ impl Engine {
         let mut resolved_page = Vec::new();
         let mut index = 0;
 
-        // add in a check for all dissimilariters
+        // All negative elements signals a complete dissimilarity and no matching is possible
+        if self.all_are_negative(&set) {
+            return resolved_page;
+        }
+
+        // add in a check for complete dissimilariters
         for similarity in set {
             if similarity >= temperature {
                 resolved_page.push(self.corpus.pages.get(index).unwrap());
@@ -213,5 +219,18 @@ impl Engine {
             index += 1;
         }
         resolved_page
+    }
+
+    ///
+    /// Check if all elements in the slice are negative.
+    ///
+    /// # Arguments
+    /// * `data` - The slice to check.
+    ///
+    /// # Returns
+    /// * `bool` - True if all elements are negative, false otherwise.
+    ///
+    pub fn all_are_negative(&self, data: &[f32]) -> bool {
+        data.iter().all(|&x| x.is_sign_negative())
     }
 }

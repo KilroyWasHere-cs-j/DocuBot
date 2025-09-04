@@ -103,5 +103,34 @@ fn main() -> anyhow::Result<()> {
 
     println!("\n----------------------Entering Main Control Loop----------------------\n");
 
+    let main_control_thread = std::thread::spawn(move || {
+        let server = Server::http("0.0.0.0:8080").unwrap();
+        for request in server.incoming_requests() {
+            let url = request.url();
+            println!(
+                "\n************************************** Request caught *************************************\n"
+            );
+            let query = url.strip_prefix("/search?q=").unwrap_or("");
+            let search_return = engine.search(query).unwrap();
+            println!("Request: {}", query);
+            let resolved_pages = engine.resolve(search_return, TEMPERATURE, MAX_RESULTS);
+            println!("Resolved pages: {:?}", resolved_pages);
+
+            let body = resolved_pages
+                .iter()
+                .map(|p| format!("{}\n{}\n{}\n", p.name, p.body, p.link))
+                .collect::<String>();
+
+            // TODO: Switch to JSON
+            let response = Response::from_string(body);
+            request.respond(response).unwrap();
+
+            println!(
+                "\n************************************** Request processed *************************************\n"
+            );
+        }
+    });
+
+    main_control_thread.join().unwrap();
     Ok(())
 }
