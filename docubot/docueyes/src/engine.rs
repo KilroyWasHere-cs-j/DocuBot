@@ -11,6 +11,7 @@ use crate::model::EmbeddingInput;
 use crate::model::Model;
 use anyhow::Result;
 use std::fs::File;
+use std::thread::available_parallelism;
 
 ///
 /// ResolveLevel enum defines the level/degree of resolution for similarity calculations.
@@ -202,7 +203,12 @@ impl Engine {
         let mut resolved_page = Vec::new();
         let mut index = 0;
 
-        // add in a check for all dissimilariters
+        // All negative elements signals a complete dissimilarity and no matching is possible
+        if self.all_are_negative(&set) {
+            return resolved_page;
+        }
+
+        // add in a check for complete dissimilariters
         for similarity in set {
             if similarity >= temperature {
                 resolved_page.push(self.corpus.pages.get(index).unwrap());
@@ -216,21 +222,15 @@ impl Engine {
     }
 
     ///
-    /// Given a set of similarities and resolve level convert similaritys to corpus value
+    /// Check if all elements in the slice are negative.
     ///
     /// # Arguments
-    /// * `resolve_level` - The level of resolution. See `ResolveLevel` enum for more details.
-    /// * `set` - The similarity set.
+    /// * `data` - The slice to check.
     ///
     /// # Returns
-    /// * `Option<f32>` - The position of the similarity set.
+    /// * `bool` - True if all elements are negative, false otherwise.
     ///
-    fn calculate_position(&self, resolve_level: ResolveLevel, set: Vec<f32>) -> Option<f32> {
-        match resolve_level {
-            ResolveLevel::Last => set.last().copied(), // Get last element
-            ResolveLevel::Mid => set.get(set.len() / 2).copied(), // Get middle element
-            ResolveLevel::First => set.first().copied(), // Get first element
-            ResolveLevel::To => set.get(4).copied(),   // Place holder for more advanced logic
-        }
+    pub fn all_are_negative(&self, data: &[f32]) -> bool {
+        data.iter().all(|&x| x.is_sign_negative())
     }
 }

@@ -1,74 +1,94 @@
 {
   "pages": [
     {
+      "id": 0,
       "name": "Salesforce is cloud-based",
       "body": "Salesforce is delivered entirely over the internet, so teams can access it from anywhere without installing software.",
       "link": "https://www.salesforce.com/products/platform/what-is-salesforce/"
     },
     {
+      "id": 1,
       "name": "CRM stands for Customer Relationship Management",
       "body": "Salesforce is the world’s #1 CRM, helping businesses track leads, manage customers, and close deals faster.",
       "link": "https://www.salesforce.com/crm/what-is-crm/"
     },
     {
+      "id": 2,
       "name": "Salesforce automates workflows",
       "body": "Repetitive tasks like sending emails, updating records, or approvals can be automated to save time.",
       "link": "https://help.salesforce.com/s/articleView?id=sf.workflow_rules_overview.htm"
     },
     {
+      "id": 3,
       "name": "Dashboards show real-time data",
       "body": "Salesforce dashboards let teams see live sales, service, or marketing metrics at a glance.",
       "link": "https://help.salesforce.com/s/articleView?id=sf.dashboards_intro.htm"
     },
     {
+      "id": 4,
       "name": "AppExchange is like an app store",
       "body": "Businesses can install thousands of apps from the Salesforce AppExchange to extend functionality.",
       "link": "https://appexchange.salesforce.com/"
     },
     {
+      "id": 5,
       "name": "Salesforce integrates with email",
       "body": "You can connect Salesforce with Gmail, Outlook, and other tools to log conversations directly.",
       "link": "https://www.salesforce.com/products/sales-cloud/features/email-integration/"
     },
     {
+      "id": 6,
       "name": "Einstein AI powers insights",
       "body": "Salesforce Einstein uses AI to predict sales, recommend next steps, and personalize customer experiences.",
       "link": "https://www.salesforce.com/products/einstein/ai-platform/"
     },
     {
+      "id": 7,
       "name": "Salesforce supports mobile",
       "body": "The Salesforce mobile app gives sales and service teams full CRM access from their phones.",
       "link": "https://www.salesforce.com/products/mobile/overview/"
     },
     {
+      "id": 8,
       "name": "Trailhead teaches Salesforce",
       "body": "Salesforce offers a free online learning platform called Trailhead to upskill users and admins.",
       "link": "https://trailhead.salesforce.com/"
     },
     {
+      "id": 9,
       "name": "Salesforce is customizable",
       "body": "Admins can create custom fields, objects, and layouts so Salesforce fits each business’s unique needs.",
       "link": "https://www.salesforce.com/products/platform/overview/"
     },
     {
+      "id": 10,
       "name": "Reports turn data into answers",
       "body": "Salesforce reports let you filter, group, and summarize records to uncover business trends.",
       "link": "https://help.salesforce.com/s/articleView?id=sf.reports_intro.htm"
     },
     {
+      "id": 11,
       "name": "Chatter connects teams",
       "body": "Salesforce Chatter is a built-in social network where employees share updates, files, and feedback.",
       "link": "https://www.salesforce.com/products/chatter/overview/"
     },
     {
+      "id": 12,
       "name": "Marketing Cloud personalizes outreach",
       "body": "Salesforce Marketing Cloud helps businesses send targeted emails, ads, and messages to the right audience.",
       "link": "https://www.salesforce.com/products/marketing-cloud/overview/"
     },
     {
+      "id": 13,
       "name": "Service Cloud improves support",
       "body": "Salesforce Service Cloud tracks cases, automates customer service, and powers chatbots for faster help.",
       "link": "https://www.salesforce.com/products/service-cloud/overview/"
+    },
+    {
+      "id": 14,
+      "name": "Community Cloud builds networks",
+      "body": "Salesforce Community Cloud lets businesses create online communities for customers, partners, and employees.",
+      "link": "https://www.salesforce.com/products/community-cloud/overview/"
     }
   ]
 }

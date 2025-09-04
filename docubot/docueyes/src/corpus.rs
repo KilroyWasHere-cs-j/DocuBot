@@ -30,6 +30,7 @@ pub struct Corpus {
 ///
 #[derive(Debug, Deserialize)]
 pub struct Page {
+    pub id: i64,
     pub name: String,
     pub body: String,
     pub link: String,
