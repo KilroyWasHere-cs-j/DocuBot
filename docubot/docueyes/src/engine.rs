@@ -214,23 +214,4 @@ impl Engine {
         }
         resolved_page
     }
-
-    ///
-    /// Given a set of similarities and resolve level convert similaritys to corpus value
-    ///
-    /// # Arguments
-    /// * `resolve_level` - The level of resolution. See `ResolveLevel` enum for more details.
-    /// * `set` - The similarity set.
-    ///
-    /// # Returns
-    /// * `Option<f32>` - The position of the similarity set.
-    ///
-    fn calculate_position(&self, resolve_level: ResolveLevel, set: Vec<f32>) -> Option<f32> {
-        match resolve_level {
-            ResolveLevel::Last => set.last().copied(), // Get last element
-            ResolveLevel::Mid => set.get(set.len() / 2).copied(), // Get middle element
-            ResolveLevel::First => set.first().copied(), // Get first element
-            ResolveLevel::To => set.get(4).copied(),   // Place holder for more advanced logic
-        }
-    }
 }

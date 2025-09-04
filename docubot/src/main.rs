@@ -11,7 +11,6 @@
  *
  */
 
-use anyhow::Result;
 use docueyes::corpus::load_corpus;
 use docueyes::engine::Engine;
 use std::env;
@@ -25,10 +24,10 @@ const BANNER: &str = r"
           **<<Kilroy Was Here>>**
 ";
 
-const TEMPERATURE: f32 = 0.5;
+const TEMPERATURE: f32 = 0.1;
 const MAX_RESULTS: usize = 3;
 
-fn main() -> Result<()> {
+fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
     if args.len() < 2 {
         println!("Usage:");
@@ -39,32 +38,32 @@ fn main() -> Result<()> {
     print!("{}\n", BANNER);
     println!("----------------------Starting----------------------");
 
-    let corpus = load_corpus(args.get(1).unwrap())?;
+    let corpus = load_corpus(args.get(1).unwrap()).unwrap();
     let mut engine = Engine::new(corpus);
 
     println!("\nPreparing embeddings");
 
-    // Based on the existance and CLI arguments handle loading and compilation of embeddings
+    // Based on file existance and CLI arguments handle loading and compilation of embeddings
     if args.get(2) == Some(&String::from("--recompile")) {
-        engine.build_embeddings()?;
+        engine.build_embeddings().unwrap();
         println!("Embeddings recompiling triggered");
         println!("Embeddings recompiled successfully");
         println!("Caching generated embeddings");
-        engine.cache_embeddings("embeddings.txt")?;
+        engine.cache_embeddings("embeddings.txt").unwrap();
         println!("Embeddings cached successfully");
     } else {
         match fs::exists("embeddings.txt") {
             Ok(true) => {
                 println!("Loading embeddings from found file");
-                engine.load_embeddings("embeddings.txt")?;
+                engine.load_embeddings("embeddings.txt").unwrap();
                 println!("Embeddings loaded successfully");
             }
             Ok(false) => {
                 println!("Embeddings not found, compiling embeddings");
-                engine.build_embeddings()?;
+                engine.build_embeddings().unwrap();
                 println!("Embeddings compiled successfully");
                 println!("Caching generated embeddings");
-                engine.cache_embeddings("embeddings.txt")?;
+                engine.cache_embeddings("embeddings.txt").unwrap();
                 println!("Embeddings cached successfully");
             }
             Err(e) => return Err(e.into()),
@@ -73,7 +72,7 @@ fn main() -> Result<()> {
 
     println!("\n----------------------Entering main controller----------------------\n");
 
-    let search_return = engine.search("How does Salesforce operate on the internet")?;
+    let search_return = engine.search("What is Trailhead")?;
 
     // Resolve needs to be massively improved
     let resolved_pages = engine.resolve(search_return, TEMPERATURE, MAX_RESULTS);
