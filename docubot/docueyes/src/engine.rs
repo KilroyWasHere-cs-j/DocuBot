@@ -11,7 +11,6 @@ use crate::model::EmbeddingInput;
 use crate::model::Model;
 use anyhow::Result;
 use std::fs::File;
-use std::thread::available_parallelism;
 
 ///
 /// ResolveLevel enum defines the level/degree of resolution for similarity calculations.
@@ -181,7 +180,7 @@ impl Engine {
         // TODO fix nothing I'm a GOD
 
         let mut similarities = Vec::new();
-        for (i, page_embedding) in self.page_embeddings.iter().enumerate() {
+        for (_, page_embedding) in self.page_embeddings.iter().enumerate() {
             let similarity = self.cosine_similarity(&query_embedding[0], page_embedding);
             similarities.push(similarity);
         }

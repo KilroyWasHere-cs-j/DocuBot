@@ -1,6 +1,6 @@
 use lazy_static::lazy_static;
 
-// BIT specific constants
+// BIT specific constantss
 pub const BIT_TEMPERATURE: f32 = 0.34; // 0.34
 pub const BIT_MAX_RESULTS: usize = 10; // 10
 lazy_static! {

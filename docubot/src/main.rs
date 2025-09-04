@@ -11,8 +11,10 @@
  *
  */
 
+mod bits;
 mod consts;
 
+use colored::*;
 use docueyes::corpus::load_corpus;
 use docueyes::engine::Engine;
 use std::env;
@@ -27,59 +29,77 @@ fn main() -> anyhow::Result<()> {
         return Ok(());
     }
 
-    print!("{}\n", consts::BANNER);
+    print!("{}\n", format!("{}", consts::BANNER).purple().bold());
     println!("----------------------Starting----------------------");
 
     let corpus = load_corpus(args.get(1).unwrap()).unwrap();
     let mut engine = Engine::new(corpus);
 
-    println!("\nPreparing embeddings");
+    println!("{}", "\nPreparing embeddings".yellow());
 
     // Based on file existance and CLI arguments handle loading and compilation of embeddings
     if args.get(2) == Some(&String::from("--recompile")) {
         engine.build_embeddings().unwrap();
-        println!("Embeddings recompiling triggered");
-        println!("Embeddings recompiled successfully");
-        println!("Caching generated embeddings");
+        println!("{}", "Embeddings recompiling triggered".blue());
+        println!("{}", "Embeddings recompiled successfully".green());
+        println!("{}", "Caching generating embeddings".blue());
         engine.cache_embeddings("embeddings.txt").unwrap();
-        println!("Embeddings cached successfully");
+        println!("{}", "Embeddings cached successfully".green());
     } else {
         match fs::exists("embeddings.txt") {
             Ok(true) => {
-                println!("Loading embeddings from found file");
+                println!("{}", "Loading embeddings from found file".blue());
                 engine.load_embeddings("embeddings.txt").unwrap();
-                println!("Embeddings loaded successfully");
+                println!("{}", "Embeddings loaded successfully".green());
             }
             Ok(false) => {
-                println!("Embeddings not found, compiling embeddings");
+                println!("{}", "Embeddings not found, compiling embeddings".yellow());
                 engine.build_embeddings().unwrap();
-                println!("Embeddings compiled successfully");
-                println!("Caching generated embeddings");
+                println!("{}", "Embeddings compiled successfully".green());
+                println!("{}", "Caching generated embeddings".blue());
                 engine.cache_embeddings("embeddings.txt").unwrap();
-                println!("Embeddings cached successfully");
+                println!("{}", "Embeddings cached successfully".green());
             }
             Err(e) => return Err(e.into()),
         }
     }
-    println!("BIT 1 Passed");
 
-    println!("\n----------------------Entering Main Control Loop----------------------\n");
+    // Run the BIT (Basic Information Tool) module
+    bits::run(&engine).unwrap();
+
+    println!(
+        "{}",
+        "\n----------------------Entering Main Control Loop----------------------\n"
+            .green()
+            .bold()
+    );
 
     let main_control_thread = std::thread::spawn(move || {
         let server = Server::http("0.0.0.0:8080").unwrap();
-        println!("Spawned server at: {}:{}", "0.0.0.0", "8080");
+        println!(
+            "{}",
+            format!("Spawned server at: {}:{}", "0.0.0.0", "8080")
+                .blue()
+                .bold()
+        );
 
         for request in server.incoming_requests() {
             let url = request.url();
             println!(
+                "{}",
                 "\n************************************** Request caught *************************************\n"
+                .green()
+                .bold()
             );
             let query = url.strip_prefix("/search?q=").unwrap_or("");
             let search_return = engine.search(query).unwrap();
-            println!("Request: {}", query);
+            println!("{}", format!("Request: {}", query).blue());
             let resolved_pages =
                 engine.resolve(search_return, consts::TEMPERATURE, consts::MAX_RESULTS);
-            println!("Resolved pages: {:?}", resolved_pages);
+            println!(
+                "{}",
+                format!("Resolved pages: {}", resolved_pages.len()).blue()
+            );
 
             let body = resolved_pages
                 .iter()
@@ -91,7 +111,10 @@ fn main() -> anyhow::Result<()> {
             request.respond(response).unwrap();
 
             println!(
+                "{}",
                 "\n************************************** Request processed *************************************\n"
+                .green()
+                .bold()
             );
         }
     });
