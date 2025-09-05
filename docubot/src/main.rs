@@ -20,20 +20,12 @@ use docueyes::corpus::load_corpus;
 use docueyes::engine::Engine;
 use std::env;
 use std::fs;
-use anyhow::anyhow;
-use tiny_http::{Response, Server};
 use tracing::{span, Level};
-use crate::consts::{EMBEDDINGS_PATH, MAX_RESULTS, SERVER_LOCATION, TEMPERATURE};
+use crate::consts::{CORPUS_PATH, EMBEDDINGS_PATH, SERVER_LOCATION, TEMPERATURE};
 use crate::server::spinup_server;
 
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
-    if args.len() < 2 {
-        println!("Usage:");
-        println!("docubot <corpus_file> --recompile");
-        return Ok(());
-    }
-
     print!("{}\n", format!("{}", consts::BANNER).purple().bold());
 
     let span = span!(Level::TRACE, "DocuBotSpan");
@@ -46,16 +38,13 @@ fn main() -> anyhow::Result<()> {
             .bold()
     );
 
-    let corpus = args.get(1)
-        .map(|arg| load_corpus(arg))
-        .unwrap_or_else(|| Err(anyhow!("missing argument")))?;
-
+    let corpus = load_corpus(CORPUS_PATH)?;
     let mut engine = Engine::new(corpus);
 
     println!("{}", "\nPreparing embeddings".yellow());
 
     // Based on file existence and CLI arguments handle loading and compilation of embeddings
-    if args.get(2) == Some(&String::from("--recompile")) {
+    if args.get(1) == Some(&String::from("--recompile")) {
         engine.build_embeddings()?;
         println!("{}", "Embeddings recompiling triggered".blue());
         println!("{}", "Embeddings recompiled successfully".green());

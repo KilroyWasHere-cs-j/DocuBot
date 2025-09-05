@@ -28,3 +28,5 @@ pub const EMBEDDINGS_PATH: &str = "embeddings.txt";
 pub const SERVER_LOCATION: &str = "0.0.0.0:8080";
 pub const MAX_QUERY_LENGTH: usize = 512;
 pub const MIN_QUERY_LENGTH: usize = 10;
+pub const CORPUS_PATH: &str = "corpus.json";
+

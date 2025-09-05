@@ -44,6 +44,7 @@ pub fn spinup_server(engine: Engine) -> std::thread::JoinHandle<()> {
     // TODO harden this code and probably make it it's own struct
     std::thread::spawn(move || {
         let server = Server::http(SERVER_LOCATION).expect("failed to start server");
+        println!("Listening on {}", SERVER_LOCATION);
 
         for request in server.incoming_requests() {
             let url = request.url();
@@ -58,7 +59,8 @@ pub fn spinup_server(engine: Engine) -> std::thread::JoinHandle<()> {
             if norm_query.len() <= MAX_QUERY_LENGTH || norm_query.len() >= MIN_QUERY_LENGTH {
                 let search_return = match engine.search(&*norm_query) {
                     Ok(r) => r,
-                    Err(_) => {
+                    Err(e) => {
+                        println!("search returned an error {}", e);
                         break;
                     }
                 };
