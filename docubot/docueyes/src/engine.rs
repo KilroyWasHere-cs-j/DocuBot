@@ -92,8 +92,7 @@ impl Engine {
     pub fn build_embeddings(&mut self) -> Result<()> {
         let embeddings = self
             .model
-            .generate_embeddings(EmbeddingInput::Corpus(&self.corpus))
-            .unwrap();
+            .generate_embeddings(EmbeddingInput::Corpus(&self.corpus))?;
 
         self.page_embeddings = embeddings;
         Ok(())
@@ -176,8 +175,7 @@ impl Engine {
         let query_embedding = self
             .model
             .generate_embeddings(EmbeddingInput::Text(query))?;
-        // Implementation for search
-        // TODO fix nothing I'm a GOD
+        // TODO fix nothing I'm a GOD... five days later and I'm trying to fix this... the issue wasn't here. I'M STILL A GOD!!
 
         let mut similarities = Vec::new();
         for (_, page_embedding) in self.page_embeddings.iter().enumerate() {
@@ -199,25 +197,23 @@ impl Engine {
     /// * `Option<f32>` - The resolved similarity value.
     ///
     pub fn resolve(&self, set: Vec<f32>, temperature: f32, window_size: usize) -> Vec<&Page> {
-        let mut resolved_page = Vec::new();
+        // TODO make resolver handle sorted returns by using the page id or something
+        let mut resolved_pages = Vec::new();
         let mut index = 0;
 
         // All negative elements signals a complete dissimilarity and no matching is possible
         if self.all_are_negative(&set) {
-            return resolved_page;
+            return resolved_pages;
         }
 
         // add in a check for complete dissimilariters
         for similarity in set {
             if similarity >= temperature {
-                resolved_page.push(self.corpus.pages.get(index).unwrap());
-            }
-            if index >= window_size {
-                break;
+                resolved_pages.push(self.corpus.pages.get(index).unwrap());
             }
             index += 1;
         }
-        resolved_page
+        resolved_pages
     }
 
     ///

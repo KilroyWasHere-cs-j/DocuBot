@@ -1,8 +1,35 @@
-use colored::Colorize;
-use tiny_http::{Response, Server};
+use std::borrow::Cow;
+use chrono::{DateTime, Local, Utc};
+use tiny_http::{Header, Response, Server};
+use docueyes::corpus::Page;
 use docueyes::engine::Engine;
-use crate::consts::{MAX_QUERY_LENGTH, MAX_RESULTS, SERVER_LOCATION, TEMPERATURE};
+use crate::consts::{MAX_QUERY_LENGTH, MAX_RESULTS, MIN_QUERY_LENGTH, SERVER_LOCATION, TEMPERATURE};
+use serde::Serialize;
 
+#[derive(Serialize, Debug)]
+enum SuccessCode {
+    Success,
+    Failed,
+}
+
+#[derive(Serialize, Debug)]
+struct RespBody<'a> {
+    #[serde(serialize_with = "serialize_datetime")]
+    datetime: DateTime<Local>,
+    code: SuccessCode,
+    query: String,
+    resolved: Vec<&'a Page>
+}
+
+fn serialize_datetime<S>(
+    dt: &DateTime<Local>,
+    serializer: S
+) -> Result<S::Ok, S::Error>
+where
+    S: serde::Serializer,
+{
+    serializer.serialize_str(&dt.to_rfc3339())
+}
 
 ///
 /// Spins up an instance of the API server for Docubot
@@ -14,66 +41,46 @@ use crate::consts::{MAX_QUERY_LENGTH, MAX_RESULTS, SERVER_LOCATION, TEMPERATURE}
 /// - handle 'JoinHandle' a handle to the newly created thread
 ///
 pub fn spinup_server(engine: Engine) -> std::thread::JoinHandle<()> {
-    // TODO harden this code
+    // TODO harden this code and probably make it it's own struct
     std::thread::spawn(move || {
         let server = Server::http(SERVER_LOCATION).expect("failed to start server");
-        println!(
-            "{}",
-            format!("Spawned server at: {}", SERVER_LOCATION)
-                .blue()
-                .bold()
-        );
 
         for request in server.incoming_requests() {
             let url = request.url();
-            println!(
-                "{}",
-                "\n************************************** Request caught *************************************\n"
-                    .green()
-                    .bold()
-            );
-
-            // Add match
             let query = url.strip_prefix("/search?q=").unwrap_or("");
-            if query.is_empty() {
-                continue;
+            let norm_query = query.replace("%20", " ");
+
+            println!("Query is {}", norm_query);
+            // Safety checks
+            if norm_query.is_empty() {
+                break;
             }
-            if query.len() <= MAX_QUERY_LENGTH {
-                let search_return = match engine.search(query) {
+            if norm_query.len() <= MAX_QUERY_LENGTH || norm_query.len() >= MIN_QUERY_LENGTH {
+                let search_return = match engine.search(&*norm_query) {
                     Ok(r) => r,
-                    Err(e) => {
-                        tracing::error!("Search failed: {}", e);
-                        continue;
+                    Err(_) => {
+                        break;
                     }
                 };
-                println!("{}", format!("Request: {}", query).blue());
+
                 let resolved_pages =
                     engine.resolve(search_return, TEMPERATURE, MAX_RESULTS);
-                println!(
-                    "{}",
-                    format!("Resolved pages: {}", resolved_pages.len()).blue()
-                );
 
-                let mut body = String::with_capacity(1024);
-                for p in &resolved_pages {
-                    use std::fmt::Write;
-                    if let Err(e) = writeln!(body, "{}\n{}\n{}\n", p.name, p.body, p.link) {
-                        tracing::error!("Failed to write response body: {}", e);
-                    }
-                }
+                let response_body = RespBody {
+                    datetime: DateTime::from(Utc::now()),
+                    code: SuccessCode::Success,
+                    query: query.parse().unwrap(),
+                    resolved: resolved_pages,
+                };
 
-                // TODO: Switch to JSON
-                let response = Response::from_string(body);
+                // TODO: Switch to JSON response
+                let response = Response::from_string(serde_json::to_string(&response_body).unwrap_or("".to_string()))
+                    .with_header(Header::from_bytes(&b"Content-Type"[..], &b"application/json"[..]).unwrap())
+                    .with_header(Header::from_bytes(&b"Maker"[..], &b"Kilroy Was Here"[..]).unwrap());;
+
                 if let Err(e) = request.respond(response) {
                     tracing::error!("Failed to send response: {}", e);
                 }
-
-                println!(
-                    "{}",
-                    "\n************************************** Request processed *************************************\n"
-                        .green()
-                        .bold()
-                );
             }
         }
     })

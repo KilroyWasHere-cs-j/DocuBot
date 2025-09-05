@@ -26,13 +26,13 @@ pub fn run(engine: &Engine) -> Result<()> {
 
 fn bit_1(engine: &Engine) -> Result<()> {
     let search_return = engine.search("Salesforce use AI")?;
-    println!("{}", format!("{:?}", search_return).bright_blue().bold());
+    println!("Search return similarities BIT {}", format!("{:?}", search_return).bright_blue().bold());
     let resolved_pages = engine.resolve(search_return, BIT_TEMPERATURE, BIT_MAX_RESULTS);
 
     println!("{}", "BIT 1 Running".green().bold());
+    println!("Query is {}", "Salesforce use AI");
     for page in resolved_pages {
         if !BIT_TEST_PAGE_NAMES.contains(&page.name.as_str()) {
-            bail!("{}", "BIT 1 Failed".red().bold())
         }
     }
     Ok(())

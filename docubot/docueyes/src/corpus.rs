@@ -6,7 +6,7 @@
 
 use anyhow::Result;
 use colored::*;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 use std::fs;
 
 // Custom type for embeddings instead of an ungly Vec<Vec<f32>>
@@ -29,7 +29,7 @@ pub struct Corpus {
 /// # Returns
 /// A Result containing a new instance of the Page struct.
 ///
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct Page {
     pub id: i64,
     pub name: String,

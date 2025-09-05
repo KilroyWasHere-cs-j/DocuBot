@@ -23,7 +23,8 @@ pub const BANNER: &str = r"
           **<<Kilroy Was Here>>**
 ";
 pub const TEMPERATURE: f32 = 0.34;
-pub const MAX_RESULTS: usize = 10;
+pub const MAX_RESULTS: usize = 1111;
 pub const EMBEDDINGS_PATH: &str = "embeddings.txt";
 pub const SERVER_LOCATION: &str = "0.0.0.0:8080";
 pub const MAX_QUERY_LENGTH: usize = 512;
+pub const MIN_QUERY_LENGTH: usize = 10;
