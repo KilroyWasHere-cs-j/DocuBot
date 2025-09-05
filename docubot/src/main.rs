@@ -19,7 +19,9 @@ use docueyes::corpus::load_corpus;
 use docueyes::engine::Engine;
 use std::env;
 use std::fs;
+use anyhow::anyhow;
 use tiny_http::{Response, Server};
+use tracing::{event, span, Level};
 
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -30,9 +32,15 @@ fn main() -> anyhow::Result<()> {
     }
 
     print!("{}\n", format!("{}", consts::BANNER).purple().bold());
-    println!("----------------------Starting----------------------");
+    let span = span!(Level::TRACE, "DocuBotSpan");
+    let _guard = span.enter();
 
-    let corpus = load_corpus(args.get(1).unwrap()).unwrap();
+    event!(Level::INFO, "----------------------Starting----------------------");
+
+    let corpus = args.get(1)
+        .map(|arg| load_corpus(arg))
+        .unwrap_or_else(|| Err(anyhow!("missing argument")))?;
+
     let mut engine = Engine::new(corpus);
 
     println!("{}", "\nPreparing embeddings".yellow());
@@ -65,7 +73,7 @@ fn main() -> anyhow::Result<()> {
     }
 
     // Run the BIT (Basic Information Tool) module
-    bits::run(&engine).unwrap();
+    bits::run(&engine)?;
 
     println!(
         "{}",
@@ -92,7 +100,13 @@ fn main() -> anyhow::Result<()> {
                 .bold()
             );
             let query = url.strip_prefix("/search?q=").unwrap_or("");
-            let search_return = engine.search(query).unwrap();
+            let search_return = match engine.search(query) {
+                Ok(r) => r,
+                Err(e) => {
+                    tracing::error!("Search failed: {}", e);
+                    continue;
+                }
+            };
             println!("{}", format!("Request: {}", query).blue());
             let resolved_pages =
                 engine.resolve(search_return, consts::TEMPERATURE, consts::MAX_RESULTS);
@@ -101,10 +115,11 @@ fn main() -> anyhow::Result<()> {
                 format!("Resolved pages: {}", resolved_pages.len()).blue()
             );
 
-            let body = resolved_pages
-                .iter()
-                .map(|p| format!("{}\n{}\n{}\n", p.name, p.body, p.link))
-                .collect::<String>();
+            let mut body = String::with_capacity(1024);
+            for p in &resolved_pages {
+                use std::fmt::Write;
+                writeln!(body, "{}\n{}\n{}\n", p.name, p.body, p.link).unwrap();
+            }
 
             // TODO: Switch to JSON
             let response = Response::from_string(body);
