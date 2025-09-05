@@ -11,6 +11,7 @@ use crate::model::EmbeddingInput;
 use crate::model::Model;
 use anyhow::Result;
 use std::fs::File;
+use std::rc::Rc;
 
 ///
 /// ResolveLevel enum defines the level/degree of resolution for similarity calculations.
@@ -181,7 +182,10 @@ impl Engine {
         for embedded_page in self.page_embeddings.iter() {
             let cosine_similarity = self.cosine_similarity(embedded_page, &*query_embedding[0]);
             if cosine_similarity >= temperature {
-
+                // let page_rc = Rc::clone(&self.pages[index]);
+                // page_rc.borrow_mut().similarity = similarity;
+                // resolved_pages.push(page_rc);
+                println!("{:?} -> {}", embedded_page, cosine_similarity);
             }
             index += 1;
         }
@@ -201,24 +205,25 @@ impl Engine {
     ///
     pub fn resolve(&self, set: Vec<f32>, temperature: f32, window_size: usize) -> Vec<Page> {
         // TODO make resolver handle sorted returns by using the page id or something
-        let mut resolved_pages = Vec::new();
-        let mut index = 0;
-
-        // All negative elements signals a complete dissimilarity and no matching is possible
-        if self.all_are_negative(&set) {
-            return resolved_pages;
-        }
-
-        // add in a check for complete dissimilariters
-        for similarity in set {
-            if similarity >= temperature {
-                let mut page = self.corpus.pages.get(index).unwrap().clone();
-                page.similarity = similarity;
-                resolved_pages.push(page);
-            }
-            index += 1;
-        }
-        resolved_pages
+        // let mut resolved_pages = Vec::new();
+        // let mut index = 0;
+        //
+        // // All negative elements signals a complete dissimilarity and no matching is possible
+        // if self.all_are_negative(&set) {
+        //     return resolved_pages;
+        // }
+        //
+        // // add in a check for complete dissimilariters
+        // for similarity in set {
+        //     if similarity >= temperature {
+        //         let mut page = self.corpus.pages.get(index).unwrap().clone();
+        //         page.similarity = similarity;
+        //         resolved_pages.push(page);
+        //     }
+        //     index += 1;
+        // }
+        // resolved_pages
+        unimplemented!()
     }
 
     ///

@@ -3,7 +3,7 @@
  * Model is a simplist interface for the creation and management of the embedding models.
  *
  */
-
+use std::rc::Rc;
 use crate::corpus::Corpus;
 use crate::corpus::Embeddings;
 use anyhow::Result;
@@ -56,7 +56,8 @@ impl Model {
             EmbeddingInput::Corpus(corpus) => {
                 let mut page_embeddings = Vec::new();
                 for page in &corpus.pages {
-                    let mut batch = self.model.encode(&[&page.body])?;
+                    let page_rc = Rc::clone(page);
+                    let mut batch = self.model.encode(&[&page.borrow_mut().body])?;
                     if let Some(embedding) = batch.pop() {
                         page_embeddings.push(embedding);
                     }
