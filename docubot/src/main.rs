@@ -1,13 +1,13 @@
 /*
  *
  * Author: Gabriel Tower
- * Date: 2023-04-01
+ * Date: 2025-02-09
  * Kilroy Was Here
  *
  * This is a Rust text-embedding based search engine for documentation. It uses BERT to generate embeddings from input text organized into a corpus.
  * Engine handles model management, search, and corpus management.
- * Model is a simplist interface for the creation and management of the embedding models.
- * Corpus is a file that holds structures and helper function pretaining to the corpus
+ * Model is a simplistic interface for the creation and management of the embedding models.
+ * Corpus is a file that holds structures and helper functions for working with a corpus
  *
  */
 
@@ -37,27 +37,27 @@ fn main() -> anyhow::Result<()> {
 
     println!("{}", "\nPreparing embeddings".yellow());
 
-    // Based on file existance and CLI arguments handle loading and compilation of embeddings
+    // Based on file existence and CLI arguments handle loading and compilation of embeddings
     if args.get(2) == Some(&String::from("--recompile")) {
-        engine.build_embeddings().unwrap();
+        engine.build_embeddings()?;
         println!("{}", "Embeddings recompiling triggered".blue());
         println!("{}", "Embeddings recompiled successfully".green());
         println!("{}", "Caching generating embeddings".blue());
-        engine.cache_embeddings("embeddings.txt").unwrap();
+        engine.cache_embeddings("embeddings.txt")?;
         println!("{}", "Embeddings cached successfully".green());
     } else {
         match fs::exists("embeddings.txt") {
             Ok(true) => {
                 println!("{}", "Loading embeddings from found file".blue());
-                engine.load_embeddings("embeddings.txt").unwrap();
+                engine.load_embeddings("embeddings.txt")?;
                 println!("{}", "Embeddings loaded successfully".green());
             }
             Ok(false) => {
                 println!("{}", "Embeddings not found, compiling embeddings".yellow());
-                engine.build_embeddings().unwrap();
+                engine.build_embeddings()?;
                 println!("{}", "Embeddings compiled successfully".green());
                 println!("{}", "Caching generated embeddings".blue());
-                engine.cache_embeddings("embeddings.txt").unwrap();
+                engine.cache_embeddings("embeddings.txt")?;
                 println!("{}", "Embeddings cached successfully".green());
             }
             Err(e) => return Err(e.into()),

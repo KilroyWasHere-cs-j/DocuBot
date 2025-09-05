@@ -210,6 +210,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "colored"
+version = "3.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fde0e0ec90c9dfb3b4b1a0891a7dcd0e2bffde2f7efed5fe7c9bb00e5bfb915e"
+dependencies = [
+ "windows-sys 0.59.0",
+]
+
+[[package]]
 name = "console"
 version = "0.16.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -378,7 +387,7 @@ name = "docueyes"
 version = "0.1.0"
 dependencies = [
  "anyhow",
- "kd-tree",
+ "colored",
  "rust-bert",
  "serde",
  "serde_json",
@@ -904,18 +913,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "kd-tree"
-version = "0.6.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10cba89e4275e55bed515724fd6d7888861c1afb9e3a1ef2c4b001b1894b41c7"
-dependencies = [
- "num-traits",
- "ordered-float 5.0.0",
- "paste",
- "typenum",
-]
-
-[[package]]
 name = "lazy_static"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1142,15 +1139,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ordered-float"
-version = "5.0.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e2c1f9f56e534ac6a9b8a4600bdf0f530fb393b5f393e7b4d03489c3cf0c3f01"
-dependencies = [
- "num-traits",
-]
-
-[[package]]
 name = "password-hash"
 version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1160,12 +1148,6 @@ dependencies = [
  "rand_core",
  "subtle",
 ]
-
-[[package]]
-name = "paste"
-version = "1.0.15"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "57c0d7b74b563b49d38dae00a0c37d4d6de9b432382b2892f0574ddcae73fd0a"
 
 [[package]]
 name = "pbkdf2"
@@ -1426,7 +1408,7 @@ dependencies = [
  "dirs",
  "half",
  "lazy_static",
- "ordered-float 4.6.0",
+ "ordered-float",
  "regex",
  "rust_tokenizers",
  "serde",
