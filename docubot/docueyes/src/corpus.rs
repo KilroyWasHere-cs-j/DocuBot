@@ -8,7 +8,7 @@ use anyhow::Result;
 use colored::*;
 use serde::{Deserialize, Serialize};
 use std::fs;
-use std::rc::Rc;
+use rust_bert::pipelines::sentence_embeddings::Embedding;
 
 // Custom type for embeddings instead of an ungly Vec<Vec<f32>>
 pub type Embeddings = Vec<f32>;
@@ -21,7 +21,7 @@ pub type Embeddings = Vec<f32>;
 ///
 #[derive(Debug, Deserialize)]
 pub struct Corpus {
-    pub pages: Vec<Rc<RefCell<Page>>>,
+    pub pages: Vec<Page>,
 }
 
 ///
@@ -38,10 +38,16 @@ pub struct Page {
     pub link: String,
     #[serde(default = "default_similarity")]
     pub similarity: f32,
+    #[serde(default = "default_embeddings")]
+    pub embeddings: Vec<Embedding>,
 }
 
 fn default_similarity() -> f32 {
     0.0
+}
+
+fn default_embeddings() -> Vec<Embedding> {
+    Vec::new()
 }
 
 ///

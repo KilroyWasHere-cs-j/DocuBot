@@ -3,6 +3,7 @@
  * Model is a simplist interface for the creation and management of the embedding models.
  *
  */
+use std::cell::{Ref, RefCell};
 use std::rc::Rc;
 use crate::corpus::Corpus;
 use crate::corpus::Embeddings;
@@ -11,12 +12,14 @@ use rust_bert::pipelines::sentence_embeddings::SentenceEmbeddingsModel;
 use rust_bert::pipelines::sentence_embeddings::{
     SentenceEmbeddingsBuilder, SentenceEmbeddingsModelType,
 };
+use std::borrow::Borrow;
+use serde::__private::de::Borrowed;
 
 ///
-/// This provides a nice way to work with one off or corpus embeddings input.
+/// This provides a nice way to work with one-off or corpus embeddings input.
 ///
 pub enum EmbeddingInput<'a> {
-    Corpus(&'a Corpus),
+    Corpus(&'a Rc<RefCell<Corpus>>),
     Text(&'a str),
 }
 
@@ -54,13 +57,14 @@ impl Model {
     pub fn generate_embeddings(&self, embedding_input: EmbeddingInput) -> Result<Vec<Embeddings>> {
         match embedding_input {
             EmbeddingInput::Corpus(corpus) => {
+
                 let mut page_embeddings = Vec::new();
-                for page in &corpus.pages {
-                    let page_rc = Rc::clone(page);
-                    let mut batch = self.model.encode(&[&page.borrow_mut().body])?;
-                    if let Some(embedding) = batch.pop() {
-                        page_embeddings.push(embedding);
-                    }
+
+                let rc_corpus: Rc<RefCell<Corpus>> = Rc::clone(&corpus); // clone Rc (cheap)
+
+                for page in &rc_corpus.borrow_mut().pages {
+                    let mut generated_embedding = self.model.encode(&[page.body.as_str()])?;
+                    page_embeddings.push(generated_embedding.pop().unwrap());
                 }
                 Ok(page_embeddings)
             }

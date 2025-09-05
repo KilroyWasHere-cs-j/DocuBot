@@ -3,7 +3,7 @@
  * Engine handles model management, search, and corpus management.
  *
  */
-
+use std::cell::{Ref, RefCell};
 use crate::corpus::Corpus;
 use crate::corpus::Embeddings;
 use crate::corpus::Page;
@@ -38,7 +38,7 @@ pub enum ResolveLevel {
 /// * `page_embeddings` - The generated embeddings
 ///
 pub struct Engine {
-    corpus: Corpus,
+    corpus: Rc<RefCell<Corpus>>,
     model: Model,
     page_embeddings: Vec<Embeddings>,
 }
@@ -65,7 +65,7 @@ impl Engine {
     ///
     pub fn new(corpus: Corpus) -> Self {
         Engine {
-            corpus: corpus,
+            corpus: Rc::new(RefCell::new(corpus)),
             model: Model::new(),
             page_embeddings: Vec::new(),
         }
@@ -173,24 +173,33 @@ impl Engine {
     /// * `Vec<String>` - The pages similar to the query.
     ///
     pub fn search(&self, query: &str, temperature: f32) -> Result<Vec<f32>> {
-        let mut index = 0;
-        let mut results = Vec::new();
-        let query_embedding = self
-            .model
-            .generate_embeddings(EmbeddingInput::Text(query))?;
+        // let mut index = 0;
+        // let mut results = Vec::new();
+        // let query_embedding = self
+        //     .model
+        //     .generate_embeddings(EmbeddingInput::Text(query))?;
+        //
+        // for embedded_page in self.page_embeddings.iter() {
+        //     let cosine_similarity = self.cosine_similarity(embedded_page, &*query_embedding[0]);
+        //     if cosine_similarity >= temperature {
+        //         // let page_rc = Rc::clone(&self.pages[index]);
+        //         // page_rc.borrow_mut().similarity = similarity;
+        //         // resolved_pages.push(page_rc);
+        //         println!("{:?} -> {}", embedded_page, cosine_similarity);
+        //     }
+        //     index += 1;
+        // }
 
-        for embedded_page in self.page_embeddings.iter() {
-            let cosine_similarity = self.cosine_similarity(embedded_page, &*query_embedding[0]);
-            if cosine_similarity >= temperature {
-                // let page_rc = Rc::clone(&self.pages[index]);
-                // page_rc.borrow_mut().similarity = similarity;
-                // resolved_pages.push(page_rc);
-                println!("{:?} -> {}", embedded_page, cosine_similarity);
-            }
-            index += 1;
+        let index = 0;
+        let mut results = Vec::new();
+
+        let query_embedding = self.model.generate_embeddings(EmbeddingInput::Text(query))?;
+
+        for embedded_page in &self.corpus.borrow().pages {
+            let calculated_cosine_similarity = self.cosine_similarity(embedded_page, query_embedding);
         }
 
-        unimplemented!()
+        Ok(results)
     }
 
     ///

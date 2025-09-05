@@ -93,6 +93,6 @@ fn main() -> anyhow::Result<()> {
 
 
     let main_control_thread = spinup_server(engine);
-    main_control_thread.join().unwrap();
+    // main_control_thread.join().unwrap();
     Ok(())
 }
