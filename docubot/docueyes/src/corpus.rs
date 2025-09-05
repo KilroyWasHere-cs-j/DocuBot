@@ -3,11 +3,12 @@
  * Corpus is a file that holds structures and helper function pretaining to the corpus
  *
  */
-
+use std::cell::RefCell;
 use anyhow::Result;
 use colored::*;
 use serde::{Deserialize, Serialize};
 use std::fs;
+use std::rc::Rc;
 
 // Custom type for embeddings instead of an ungly Vec<Vec<f32>>
 pub type Embeddings = Vec<f32>;
@@ -20,7 +21,7 @@ pub type Embeddings = Vec<f32>;
 ///
 #[derive(Debug, Deserialize)]
 pub struct Corpus {
-    pub pages: Vec<Page>,
+    pub pages: Vec<Rc<RefCell<Page>>>,
 }
 
 ///

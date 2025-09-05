@@ -171,19 +171,22 @@ impl Engine {
     /// # Returns
     /// * `Vec<String>` - The pages similar to the query.
     ///
-    pub fn search(&self, query: &str) -> Result<Vec<f32>> {
+    pub fn search(&self, query: &str, temperature: f32) -> Result<Vec<f32>> {
+        let mut index = 0;
+        let mut results = Vec::new();
         let query_embedding = self
             .model
             .generate_embeddings(EmbeddingInput::Text(query))?;
-        // TODO fix nothing I'm a GOD... five days later and I'm trying to fix this... the issue wasn't here. I'M STILL A GOD!!
 
-        let mut similarities = Vec::new();
-        for (_, page_embedding) in self.page_embeddings.iter().enumerate() {
-            let similarity = self.cosine_similarity(&query_embedding[0], page_embedding);
-            similarities.push(similarity);
+        for embedded_page in self.page_embeddings.iter() {
+            let cosine_similarity = self.cosine_similarity(embedded_page, &*query_embedding[0]);
+            if cosine_similarity >= temperature {
+
+            }
+            index += 1;
         }
-        // similarities.sort_by(|b, a| a.partial_cmp(b).unwrap());
-        Ok(similarities)
+
+        unimplemented!()
     }
 
     ///
