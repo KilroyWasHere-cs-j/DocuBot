@@ -1,7 +1,7 @@
 use colored::Colorize;
 use tiny_http::{Response, Server};
 use docueyes::engine::Engine;
-use crate::consts::{MAX_RESULTS, SERVER_LOCATION, TEMPERATURE};
+use crate::consts::{MAX_QUERY_LENGTH, MAX_RESULTS, SERVER_LOCATION, TEMPERATURE};
 
 
 ///
@@ -14,6 +14,7 @@ use crate::consts::{MAX_RESULTS, SERVER_LOCATION, TEMPERATURE};
 /// - handle 'JoinHandle' a handle to the newly created thread
 ///
 pub fn spinup_server(engine: Engine) -> std::thread::JoinHandle<()> {
+    // TODO harden this code
     std::thread::spawn(move || {
         let server = Server::http(SERVER_LOCATION).expect("failed to start server");
         println!(
@@ -34,37 +35,46 @@ pub fn spinup_server(engine: Engine) -> std::thread::JoinHandle<()> {
 
             // Add match
             let query = url.strip_prefix("/search?q=").unwrap_or("");
-            let search_return = match engine.search(query) {
-                Ok(r) => r,
-                Err(e) => {
-                    tracing::error!("Search failed: {}", e);
-                    continue;
-                }
-            };
-            println!("{}", format!("Request: {}", query).blue());
-            let resolved_pages =
-                engine.resolve(search_return, TEMPERATURE, MAX_RESULTS);
-            println!(
-                "{}",
-                format!("Resolved pages: {}", resolved_pages.len()).blue()
-            );
-
-            let mut body = String::with_capacity(1024);
-            for p in &resolved_pages {
-                use std::fmt::Write;
-                writeln!(body, "{}\n{}\n{}\n", p.name, p.body, p.link).unwrap();
+            if query.is_empty() {
+                continue;
             }
+            if query.len() <= MAX_QUERY_LENGTH {
+                let search_return = match engine.search(query) {
+                    Ok(r) => r,
+                    Err(e) => {
+                        tracing::error!("Search failed: {}", e);
+                        continue;
+                    }
+                };
+                println!("{}", format!("Request: {}", query).blue());
+                let resolved_pages =
+                    engine.resolve(search_return, TEMPERATURE, MAX_RESULTS);
+                println!(
+                    "{}",
+                    format!("Resolved pages: {}", resolved_pages.len()).blue()
+                );
 
-            // TODO: Switch to JSON
-            let response = Response::from_string(body);
-            request.respond(response).expect("A fatal error has occurred in server");
+                let mut body = String::with_capacity(1024);
+                for p in &resolved_pages {
+                    use std::fmt::Write;
+                    if let Err(e) = writeln!(body, "{}\n{}\n{}\n", p.name, p.body, p.link) {
+                        tracing::error!("Failed to write response body: {}", e);
+                    }
+                }
 
-            println!(
-                "{}",
-                "\n************************************** Request processed *************************************\n"
-                    .green()
-                    .bold()
-            );
+                // TODO: Switch to JSON
+                let response = Response::from_string(body);
+                if let Err(e) = request.respond(response) {
+                    tracing::error!("Failed to send response: {}", e);
+                }
+
+                println!(
+                    "{}",
+                    "\n************************************** Request processed *************************************\n"
+                        .green()
+                        .bold()
+                );
+            }
         }
     })
 }
