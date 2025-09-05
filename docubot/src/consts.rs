@@ -24,3 +24,5 @@ pub const BANNER: &str = r"
 ";
 pub const TEMPERATURE: f32 = 0.34;
 pub const MAX_RESULTS: usize = 10;
+pub const EMBEDDINGS_PATH: &str = "embeddings.txt";
+pub const SERVER_LOCATION: &str = "0.0.0.0:8080";

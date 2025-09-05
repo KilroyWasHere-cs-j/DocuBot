@@ -13,6 +13,7 @@
 
 mod bits;
 mod consts;
+mod server;
 
 use colored::*;
 use docueyes::corpus::load_corpus;
@@ -21,7 +22,9 @@ use std::env;
 use std::fs;
 use anyhow::anyhow;
 use tiny_http::{Response, Server};
-use tracing::{event, span, Level};
+use tracing::{span, Level};
+use crate::consts::{EMBEDDINGS_PATH, MAX_RESULTS, SERVER_LOCATION, TEMPERATURE};
+use crate::server::spinup_server;
 
 fn main() -> anyhow::Result<()> {
     let args: Vec<String> = env::args().collect();
@@ -32,10 +35,16 @@ fn main() -> anyhow::Result<()> {
     }
 
     print!("{}\n", format!("{}", consts::BANNER).purple().bold());
+
     let span = span!(Level::TRACE, "DocuBotSpan");
     let _guard = span.enter();
 
-    event!(Level::INFO, "----------------------Starting----------------------");
+    println!(
+        "{}",
+        "\n----------------------Starting----------------------\n"
+            .green()
+            .bold()
+    );
 
     let corpus = args.get(1)
         .map(|arg| load_corpus(arg))
@@ -51,13 +60,13 @@ fn main() -> anyhow::Result<()> {
         println!("{}", "Embeddings recompiling triggered".blue());
         println!("{}", "Embeddings recompiled successfully".green());
         println!("{}", "Caching generating embeddings".blue());
-        engine.cache_embeddings("embeddings.txt")?;
+        engine.cache_embeddings(EMBEDDINGS_PATH)?;
         println!("{}", "Embeddings cached successfully".green());
     } else {
         match fs::exists("embeddings.txt") {
             Ok(true) => {
                 println!("{}", "Loading embeddings from found file".blue());
-                engine.load_embeddings("embeddings.txt")?;
+                engine.load_embeddings(EMBEDDINGS_PATH)?;
                 println!("{}", "Embeddings loaded successfully".green());
             }
             Ok(false) => {
@@ -65,7 +74,7 @@ fn main() -> anyhow::Result<()> {
                 engine.build_embeddings()?;
                 println!("{}", "Embeddings compiled successfully".green());
                 println!("{}", "Caching generated embeddings".blue());
-                engine.cache_embeddings("embeddings.txt")?;
+                engine.cache_embeddings(EMBEDDINGS_PATH)?;
                 println!("{}", "Embeddings cached successfully".green());
             }
             Err(e) => return Err(e.into()),
@@ -82,58 +91,8 @@ fn main() -> anyhow::Result<()> {
             .bold()
     );
 
-    let main_control_thread = std::thread::spawn(move || {
-        let server = Server::http("0.0.0.0:8080").unwrap();
-        println!(
-            "{}",
-            format!("Spawned server at: {}:{}", "0.0.0.0", "8080")
-                .blue()
-                .bold()
-        );
 
-        for request in server.incoming_requests() {
-            let url = request.url();
-            println!(
-                "{}",
-                "\n************************************** Request caught *************************************\n"
-                .green()
-                .bold()
-            );
-            let query = url.strip_prefix("/search?q=").unwrap_or("");
-            let search_return = match engine.search(query) {
-                Ok(r) => r,
-                Err(e) => {
-                    tracing::error!("Search failed: {}", e);
-                    continue;
-                }
-            };
-            println!("{}", format!("Request: {}", query).blue());
-            let resolved_pages =
-                engine.resolve(search_return, consts::TEMPERATURE, consts::MAX_RESULTS);
-            println!(
-                "{}",
-                format!("Resolved pages: {}", resolved_pages.len()).blue()
-            );
-
-            let mut body = String::with_capacity(1024);
-            for p in &resolved_pages {
-                use std::fmt::Write;
-                writeln!(body, "{}\n{}\n{}\n", p.name, p.body, p.link).unwrap();
-            }
-
-            // TODO: Switch to JSON
-            let response = Response::from_string(body);
-            request.respond(response).unwrap();
-
-            println!(
-                "{}",
-                "\n************************************** Request processed *************************************\n"
-                .green()
-                .bold()
-            );
-        }
-    });
-
+    let main_control_thread = spinup_server(engine);
     main_control_thread.join().unwrap();
     Ok(())
 }
