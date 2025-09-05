@@ -35,6 +35,12 @@ pub struct Page {
     pub name: String,
     pub body: String,
     pub link: String,
+    #[serde(default = "default_similarity")]
+    pub similarity: f32,
+}
+
+fn default_similarity() -> f32 {
+    0.0
 }
 
 ///

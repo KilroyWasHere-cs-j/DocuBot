@@ -13,12 +13,12 @@ enum SuccessCode {
 }
 
 #[derive(Serialize, Debug)]
-struct RespBody<'a> {
+struct RespBody {
     #[serde(serialize_with = "serialize_datetime")]
     datetime: DateTime<Local>,
     code: SuccessCode,
     query: String,
-    resolved: Vec<&'a Page>
+    resolved: Vec<Page>
 }
 
 fn serialize_datetime<S>(

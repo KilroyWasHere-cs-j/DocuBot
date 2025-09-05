@@ -196,7 +196,7 @@ impl Engine {
     /// # Returns
     /// * `Option<f32>` - The resolved similarity value.
     ///
-    pub fn resolve(&self, set: Vec<f32>, temperature: f32, window_size: usize) -> Vec<&Page> {
+    pub fn resolve(&self, set: Vec<f32>, temperature: f32, window_size: usize) -> Vec<Page> {
         // TODO make resolver handle sorted returns by using the page id or something
         let mut resolved_pages = Vec::new();
         let mut index = 0;
@@ -209,7 +209,9 @@ impl Engine {
         // add in a check for complete dissimilariters
         for similarity in set {
             if similarity >= temperature {
-                resolved_pages.push(self.corpus.pages.get(index).unwrap());
+                let mut page = self.corpus.pages.get(index).unwrap().clone();
+                page.similarity = similarity;
+                resolved_pages.push(page);
             }
             index += 1;
         }
