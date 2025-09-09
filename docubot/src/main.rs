@@ -21,7 +21,7 @@ use docueyes::engine::Engine;
 use std::env;
 use std::fs;
 use tracing::{span, Level};
-use crate::consts::{CORPUS_PATH, EMBEDDINGS_PATH, SERVER_LOCATION, TEMPERATURE};
+use crate::consts::{CORPUS_PATH, EMBEDDINGS_PATH};
 use crate::server::spinup_server;
 
 fn main() -> anyhow::Result<()> {

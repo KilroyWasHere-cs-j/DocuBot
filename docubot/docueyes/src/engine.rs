@@ -196,7 +196,7 @@ impl Engine {
     /// # Returns
     /// * `Option<f32>` - The resolved similarity value.
     ///
-    pub fn resolve(&self, set: Vec<f32>, temperature: f32, window_size: usize) -> Vec<Page> {
+    pub fn resolve(&self, set: Vec<f32>, temperature: f32, _window_size: usize) -> Vec<Page> {
         // TODO make resolver handle sorted returns by using the page id or something
         let mut resolved_pages = Vec::new();
         let mut index = 0;

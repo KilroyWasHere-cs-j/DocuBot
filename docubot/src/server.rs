@@ -1,4 +1,3 @@
-use std::borrow::Cow;
 use chrono::{DateTime, Local, Utc};
 use tiny_http::{Header, Response, Server};
 use docueyes::corpus::Page;
@@ -10,6 +9,7 @@ use serde::Serialize;
 enum SuccessCode {
     Success,
     Failed,
+    Unknown,
 }
 
 #[derive(Serialize, Debug)]
@@ -50,6 +50,7 @@ pub fn spinup_server(engine: Engine) -> std::thread::JoinHandle<()> {
             let url = request.url();
             let query = url.strip_prefix("/search?q=").unwrap_or("");
             let norm_query = query.replace("%20", " ");
+            let mut success_code = SuccessCode::Unknown;
 
             println!("Query is {}", norm_query);
             // Safety checks
@@ -57,28 +58,26 @@ pub fn spinup_server(engine: Engine) -> std::thread::JoinHandle<()> {
                 break;
             }
             if norm_query.len() <= MAX_QUERY_LENGTH || norm_query.len() >= MIN_QUERY_LENGTH {
-                let search_return = match engine.search(&*norm_query) {
-                    Ok(r) => r,
-                    Err(e) => {
-                        println!("search returned an error {}", e);
-                        break;
-                    }
-                };
+                let search_return = engine.search(&*norm_query).unwrap_or_else(|e| {
+                    success_code = SuccessCode::Failed;
+                    Vec::new()
+                });
 
                 let resolved_pages =
                     engine.resolve(search_return, TEMPERATURE, MAX_RESULTS);
 
+                success_code = SuccessCode::Success;
                 let response_body = RespBody {
                     datetime: DateTime::from(Utc::now()),
-                    code: SuccessCode::Success,
+                    code: success_code,
                     query: query.parse().unwrap(),
                     resolved: resolved_pages,
                 };
-
+                
                 // TODO: Switch to JSON response
                 let response = Response::from_string(serde_json::to_string(&response_body).unwrap_or("".to_string()))
                     .with_header(Header::from_bytes(&b"Content-Type"[..], &b"application/json"[..]).unwrap())
-                    .with_header(Header::from_bytes(&b"Maker"[..], &b"Kilroy Was Here"[..]).unwrap());;
+                    .with_header(Header::from_bytes(&b"Maker"[..], &b"Kilroy Was Here"[..]).unwrap());
 
                 if let Err(e) = request.respond(response) {
                     tracing::error!("Failed to send response: {}", e);

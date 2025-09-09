@@ -8,7 +8,6 @@
 
 use crate::consts::{BIT_MAX_RESULTS, BIT_TEMPERATURE, BIT_TEST_PAGE_NAMES};
 use anyhow::Result;
-use anyhow::bail;
 use colored::*;
 use docueyes::engine::Engine;
 
