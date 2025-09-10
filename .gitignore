@@ -21,3 +21,4 @@ target
 .idea/
 .docu-log/
 embeddings.txt
+.DS_Store
