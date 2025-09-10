@@ -1,5 +1,5 @@
 use flexi_logger::{detailed_format, Logger};
-use log::{error, info, warn, Log};
+use log::{error, info, warn};
 use anyhow::Result;
 
 pub struct Logg;

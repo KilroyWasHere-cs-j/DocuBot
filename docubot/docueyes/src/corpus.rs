@@ -5,7 +5,6 @@
  */
 
 use anyhow::Result;
-use colored::*;
 use serde::{Deserialize, Serialize};
 use std::fs;
 
