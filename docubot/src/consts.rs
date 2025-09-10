@@ -29,4 +29,5 @@ pub const SERVER_LOCATION: &str = "0.0.0.0:8080";
 pub const MAX_QUERY_LENGTH: usize = 512;
 pub const MIN_QUERY_LENGTH: usize = 10;
 pub const CORPUS_PATH: &str = "corpus.json";
+pub const SERVER_SPIN_UP_ATTEMPTS: u64 = 10;
 

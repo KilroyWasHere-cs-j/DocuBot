@@ -1,0 +1,23 @@
+[2025-09-10 15:24:20.771154 -04:00] INFO [docubot::logg] src/logg.rs:18: Logging started
+[2025-09-10 15:24:24.542533 -04:00] INFO [cached_path::cache] /Users/gabrieltower/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cached-path-0.6.2/src/cache.rs:417: Cached version of https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2/resolve/main/tokenizer_config.json is up-to-date
+[2025-09-10 15:24:24.591616 -04:00] INFO [cached_path::cache] /Users/gabrieltower/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cached-path-0.6.2/src/cache.rs:417: Cached version of https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2/resolve/main/sentence_bert_config.json is up-to-date
+[2025-09-10 15:24:24.637519 -04:00] INFO [cached_path::cache] /Users/gabrieltower/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cached-path-0.6.2/src/cache.rs:417: Cached version of https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2/resolve/main/vocab.txt is up-to-date
+[2025-09-10 15:24:24.791837 -04:00] INFO [cached_path::cache] /Users/gabrieltower/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cached-path-0.6.2/src/cache.rs:417: Cached version of https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2/resolve/main/modules.json is up-to-date
+[2025-09-10 15:24:24.837546 -04:00] INFO [cached_path::cache] /Users/gabrieltower/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cached-path-0.6.2/src/cache.rs:417: Cached version of https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2/resolve/main/sentence_bert_config.json is up-to-date
+[2025-09-10 15:24:24.911321 -04:00] INFO [cached_path::cache] /Users/gabrieltower/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cached-path-0.6.2/src/cache.rs:417: Cached version of https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2/resolve/main/config.json is up-to-date
+[2025-09-10 15:24:28.755701 -04:00] INFO [cached_path::cache] /Users/gabrieltower/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cached-path-0.6.2/src/cache.rs:417: Cached version of https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2/resolve/main/rust_model.ot is up-to-date
+[2025-09-10 15:24:28.905964 -04:00] INFO [cached_path::cache] /Users/gabrieltower/.cargo/registry/src/index.crates.io-1949cf8c6b5b557f/cached-path-0.6.2/src/cache.rs:417: Cached version of https://huggingface.co/sentence-transformers/all-MiniLM-L12-v2/resolve/main/1_Pooling/config.json is up-to-date
+[2025-09-10 15:24:28.906269 -04:00] INFO [docubot::logg] src/logg.rs:18: Loading embeddings from found file
+[2025-09-10 15:24:28.943057 -04:00] INFO [docubot::logg] src/logg.rs:18: Embeddings loaded successfully
+[2025-09-10 15:24:28.943072 -04:00] WARN [docubot::logg] src/logg.rs:26: Running BIT tests
+[2025-09-10 15:24:28.954866 -04:00] WARN [docubot::logg] src/logg.rs:26: BIT tests all PASSED
+[2025-09-10 15:24:28.954921 -04:00] WARN [docubot::logg] src/logg.rs:26: Entering maine
+[2025-09-10 15:24:28.955161 -04:00] INFO [docubot::logg] src/logg.rs:18: Server at 0.0.0.0:8080
+[2025-09-10 15:24:33.006569 -04:00] INFO [docubot::logg] src/logg.rs:18: Query good, serving
+[2025-09-10 15:24:44.193953 -04:00] INFO [docubot::logg] src/logg.rs:18: Query good, serving
+[2025-09-10 15:24:51.190163 -04:00] ERROR [docubot::logg] src/logg.rs:22: Query is empty
+[2025-09-10 15:24:51.250406 -04:00] INFO [docubot::logg] src/logg.rs:18: Query good, serving
+[2025-09-10 15:24:55.551023 -04:00] ERROR [docubot::logg] src/logg.rs:22: Query is empty
+[2025-09-10 15:24:55.584317 -04:00] INFO [docubot::logg] src/logg.rs:18: Query good, serving
+[2025-09-10 15:24:59.360313 -04:00] ERROR [docubot::logg] src/logg.rs:22: Query is empty
+[2025-09-10 15:24:59.390422 -04:00] INFO [docubot::logg] src/logg.rs:18: Query good, serving
