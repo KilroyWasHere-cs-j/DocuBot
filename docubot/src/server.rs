@@ -1,3 +1,4 @@
+use std::sync::{Arc, Mutex};
 use chrono::{DateTime, Local, Utc};
 use tiny_http::{Header, Response, Server};
 use docueyes::corpus::Page;
@@ -41,7 +42,7 @@ where
 /// # Returns
 /// - handle 'JoinHandle' a handle to the newly created thread
 ///
-pub fn spinup_server(engine: Engine) -> std::thread::JoinHandle<()> {
+pub fn spinup_server(engine: Arc<Mutex<Engine>>) -> std::thread::JoinHandle<()> {
     // TODO harden this code and probably make it it's own struct
     let mut delay = SERVER_SPIN_UP_ATTEMPTS;
     let server = loop {
@@ -54,57 +55,61 @@ pub fn spinup_server(engine: Engine) -> std::thread::JoinHandle<()> {
             }
         }
     };
+    let engine_clone = Arc::clone(&engine);
     std::thread::spawn(move || {
         Logg::info(format!("Server at {}", SERVER_LOCATION));
 
         for request in server.incoming_requests() {
             let url = request.url();
-            let query = url.strip_prefix("/search?q=").unwrap_or("");
-            let norm_query = query.replace("%20", " ");
 
-            let mut success_code = SuccessCode::Unknown;
-            // Safety checks
-            if norm_query.is_empty() {
-                Logg::error("Query is empty".to_string());
-            }
-            if norm_query.len() <= MAX_QUERY_LENGTH || norm_query.len() >= MIN_QUERY_LENGTH {
-                let search_return = engine.search(&*norm_query).unwrap_or_else(|e| {
-                    Logg::error(format!("Failed to search query cause: {}", e));
-                    success_code = SuccessCode::Failed;
-                    Vec::new()
-                });
+            if url.contains("/search?q=") {
+                let query = url.strip_prefix("/search?q=").unwrap_or("");
+                let norm_query = query.replace("%20", " ");
 
-                Logg::info("Query good, serving".to_string());
+                let mut success_code = SuccessCode::Unknown;
+                // Safety checks
+                if norm_query.is_empty() {
+                    Logg::error("Query is empty".to_string());
+                }
+                if norm_query.len() <= MAX_QUERY_LENGTH || norm_query.len() >= MIN_QUERY_LENGTH {
+                    let search_return = engine_clone.lock().unwrap().search(&*norm_query).unwrap_or_else(|e| {
+                        Logg::error(format!("Failed to search query cause: {}", e));
+                        success_code = SuccessCode::Failed;
+                        Vec::new()
+                    });
 
-                let resolved_pages =
-                    engine.resolve(search_return, TEMPERATURE, MAX_RESULTS);
+                    Logg::info("Query good, serving".to_string());
 
-                success_code = SuccessCode::Success;
-                let response_body = RespBody {
-                    datetime: DateTime::from(Utc::now()),
-                    code: success_code,
-                    query: query.parse().unwrap(),
-                    resolved: resolved_pages,
-                };
-                
-                // TODO: Switch to JSON response
-                let response = Response::from_string(serde_json::to_string(&response_body).unwrap_or_else(|e| {
-                    Logg::error(format!("Failed to serialize response body: {}", e));
-                    "Error".to_string()
-                }))
-                    .with_header(Header::from_bytes(&b"Content-Type"[..], &b"application/json"[..]).unwrap_or_else(|e| {
-                        Logg::error("FATAL FATAL FATAL".to_string());
-                        Logg::error(format!("Failed to create response header: {:?}.", e));
-                        std::process::exit(1);
+                    let resolved_pages =
+                        engine_clone.lock().unwrap().resolve(search_return, TEMPERATURE, MAX_RESULTS);
+
+                    success_code = SuccessCode::Success;
+                    let response_body = RespBody {
+                        datetime: DateTime::from(Utc::now()),
+                        code: success_code,
+                        query: query.parse().unwrap(),
+                        resolved: resolved_pages,
+                    };
+
+                    // TODO: Switch to JSON response
+                    let response = Response::from_string(serde_json::to_string(&response_body).unwrap_or_else(|e| {
+                        Logg::error(format!("Failed to serialize response body: {}", e));
+                        "Error".to_string()
                     }))
-                    .with_header(Header::from_bytes(&b"Maker"[..], &b"Kilroy Was Here"[..]).unwrap_or_else(|e| {
-                        Logg::error("FATAL FATAL FATAL".to_string());
-                        Logg::error(format!("Failed to create response header: {:?}.", e));
-                        std::process::exit(1);
-                    }));
+                        .with_header(Header::from_bytes(&b"Content-Type"[..], &b"application/json"[..]).unwrap_or_else(|e| {
+                            Logg::error("FATAL FATAL FATAL".to_string());
+                            Logg::error(format!("Failed to create response header: {:?}.", e));
+                            std::process::exit(1);
+                        }))
+                        .with_header(Header::from_bytes(&b"Maker"[..], &b"Kilroy Was Here"[..]).unwrap_or_else(|e| {
+                            Logg::error("FATAL FATAL FATAL".to_string());
+                            Logg::error(format!("Failed to create response header: {:?}.", e));
+                            std::process::exit(1);
+                        }));
 
-                if let Err(e) = request.respond(response) {
-                    Logg::error(format!("Failed to send response to server {}", e));
+                    if let Err(e) = request.respond(response) {
+                        Logg::error(format!("Failed to send response to server {}", e));
+                    }
                 }
             }
         }
